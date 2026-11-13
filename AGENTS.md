@@ -23,7 +23,7 @@
 | 2 | `Unit_Economics_Home_Workout_bt2.xlsx` — toàn bộ bài làm, 1 file duy nhất | ✅ xong (14 sheet, 0 công thức lỗi, 40/40 số kiểm tra khớp) |
 | 3 | `Channel_Plan_Home_Workout.xlsx` — Cấp 3 Channel Plan | ✅ xong (9 sheet, 2 vùng/sheet, 0 công thức lỗi, 65/65 bảng có dòng công thức, 0 merge chồng, 0 bước thiếu panel) |
 | 4 | `Channel_Plan_Home_Workout.docx` — bản đọc/nộp của Cấp 3, sinh từ file xlsx | ✅ xong (9 câu · 38 bước · 9 kết luận · 159 bảng) |
-| 5 | `Unit_Economics_Home_Workout.html` — bản đọc của Cấp 2, chia 6.5:3.5, sinh từ file xlsx bằng `build_html.py` | ✅ xong · bản mới nhất 2026-11-13 (có hộp "số nào ra số nào") · 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 31 nút `↗` đã kiểm từng cái · md5 `409f5608212f27cf12cc016cbfcee861` |
+| 5 | `Unit_Economics_Home_Workout.html` — bản đọc của Cấp 2, chia 6.5:3.5, sinh từ file xlsx bằng `build_html.py` | ✅ xong · bản mới nhất 2026-11-13 (có hộp "số nào ra số nào") · 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 31 nút `↗` đã kiểm từng cái · md5 `7042f9612e7815da3a881819557c0487` |
 
 **Quy tắc trình bày bảng tính:** trên **mỗi bảng** (không chỉ mỗi sheet) phải có 1 dòng ghi công thức ngay phía trên dòng tiêu đề, dạng:
 `Công thức: <tên chỉ số> = <công thức> | <ghi chú ngắn>`
@@ -255,7 +255,7 @@ Kiểm tra: `formulas.ExcelModel().loads(path).finish().calculate()` → đếm 
 `Unit_Economics_Home_Workout_bt2.xlsx` bằng `build_html.py`; **không sửa file xlsx**, không đụng 2 file Cấp 3.
 
 > **TRẠNG THÁI: bản mới nhất 2026-11-13.** Bản 12/11 đã chốt, sau đó người học yêu cầu thêm hộp "số nào ra số nào"
-> (§12.5) nên file được mở lại. Bản đang nộp: 403.499 bytes · md5 `409f5608212f27cf12cc016cbfcee861` ·
+> (§12.5) nên file được mở lại. Bản đang nộp: 403.579 bytes · md5 `7042f9612e7815da3a881819557c0487` ·
 > 12 tab · 515 ô nhảy sang cột phải · 556 ô có phép tính · 101 `ⓘ` · 31 nút `↗` · 58 dòng nguồn có anchor · 0 ô lỗi.
 > Chỉ được sinh lại từ `build_html.py` (sửa giả định ở `D_Gia_Dinh` rồi chạy 1 lệnh), **không sửa tay file HTML**.
 
@@ -283,6 +283,7 @@ Làm lại y như dưới đây, đừng "cải tiến" thêm:
 | Chú giải | `🟩 Số thật · 🟨 Giả định · 🟥 Bịa` là `.dlegend` `position:absolute; top:7px; right:10px` trong `.dhead` → **góc phải trên cùng**, đứng yên khi cuộn |
 | Dòng hướng dẫn | Chỉ hiện **sau khi bấm một số**: `← <tên dòng> · n ô nguồn`. Bình thường `.dnote:empty` co về 0 (header cao 34px) |
 | Dòng dữ liệu | `tên | số | ↗ | ô màu` — `grid-template-columns: minmax(0,1fr) auto 16px 16px`; **ô màu luôn là cột cuối**, `↗` ngay trước nó; `.pr .lbcell{grid-column:4}` để dòng không có nút vẫn thẳng cột màu. Không bỏ `↗` (người học đã kêu bỏ là sai) |
+| Lề trong | Mọi dòng (`.pr` và `table.mini`) có **6px lề trái cho chữ, 6px lề phải cho ô màu** — `.pr{padding:3px 6px}`, `table.mini th,td{padding:3px 6px}`, `table.mini .lbh,.lbcell{padding:3px 6px 3px 0;width:22px}`, `th[scope=row]{padding-left:6px}`. Ô màu là `.lb{display:inline-block;width:16px}` nên mọi dấu 🟩🟨🟥 cùng 1 mép phải, không phụ thuộc emoji rộng 11 hay 17px. **Đừng** để chữ dính mép (trước 13/11 là 2px) |
 | Thẳng hàng | Cả panel chỉ được có **1 toạ độ x cho ô màu** và **1 toạ độ x cho nút `↗`** (kể cả `table.mini`) — đo bằng `getBoundingClientRect().right` trong Chrome headless |
 | `ⓘ` | Chỉ ở chỗ có gì để giải thích; `info()` bỏ ghi chú <20 ký tự không có số. **`SKIP_INFO = ("Tên app","Package ID","Khoảng giá IAP")` là không có icon** |
 | Số thật từ Google Play | Lưới 2 cột; `Contains ads` + `In-app purchases` nằm **chung 1 ô, 2 dòng** (`div.fact.two` + `div.frow`), nhãn rồi `Có` **sát nhau**, không đẩy ra mép |
@@ -299,7 +300,7 @@ cd /Users/buzzlp./Downloads/ua
 ```
 
 Nghiệm thu (máy kiểm, `--check`): **12 tab · 12 sheet · 515 ô bấm được · 86 ô nhập tay · 101 `ⓘ` · 31 nút `↗` ·
-58 dòng nguồn có anchor · 0 nguồn thiếu anchor · 0 ô lỗi (#REF!/#VALUE!/None) · 403.499 bytes**.
+58 dòng nguồn có anchor · 0 nguồn thiếu anchor · 0 ô lỗi (#REF!/#VALUE!/None) · 403.579 bytes**.
 Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + tô 4 dòng (69–71 + 81) · click ô `self` → toast · hover `ⓘ` → tooltip không bị cắt · 900px → drawer mở/đóng được · trong panel cả 40 ô màu chỉ có 1 toạ độ x, 31 nút `↗` cũng 1 toạ độ x, và **31/31 nút nhảy đúng ô** (mỗi ô đích có `data-src` chứa dòng panel tương ứng).
 
 ### 12.2 Quyết định riêng của bản HTML
@@ -426,7 +427,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   Kiểm: **31 nút `↗`, 31/31 nhảy đúng tab + tô đúng ô, 0 ô đích không tồn tại, 0 nút trỏ tới ô không dùng số đó** ·
   D7 → `2.5_LTV!B10` (18,0%), D30 → `B12` (8,0%) · Banner/Inter/Rewarded → `2.3_eCPM!B42` (ô ARPDAU IAA — **ô duy nhất**
   trong model dùng 3 số này) · 556/556 hộp phép tính · 515 ô bấm được · 0 tràn ·
-  375 ô tô vàng · 0 còn vàng sau khi bấm ra ngoài · 156/156 chip đổi tab. File 403.499 bytes, md5 `409f5608…`.
+  375 ô tô vàng · 0 còn vàng sau khi bấm ra ngoài · 156/156 chip đổi tab. File 403.579 bytes, md5 `7042f961…`.
 - **2026-11-13 (vòng 14b — chỉ thêm đúng 2 mũi tên):** người học nói rõ: ở bảng retention chỉ xin thêm `↗` cho **D7 và D30**,
   không phải thêm hết. Bảng giả định đã có `NO_ARROW = {("D_GIA_DINH",20),("D_GIA_DINH",22),("D_GIA_DINH",24)}` (D3 · D14 · D60)
   → retention còn **7 nút**: D0 · D1 · **D7** · **D30** · D90 · D180 · D365 (D3/D14/D60 không có). Tổng 34 → **31 nút**,
@@ -449,7 +450,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   Interstitial, `B30` = Rewarded. Lỗi tự phát hiện khi test: bản đầu tính "ô nào bị loại" nên ô có **nhiều `SUMIF`** (trả lời
   ngắn `2.1!A3`, 3 `SUMIF` IAA/IAP/Sub trên cùng vùng) bị loại sạch → đổi sang tính "ô nào **được** lấy" rồi hợp lại
   (2.1!A3 còn 18 ô, đúng: dòng `Khác` không có `SUMIF` nào dùng). Kiểm: 12 tab 0 tràn · 0 ô tràn chữ · 556/556 hộp ·
-  375 ô vàng · bấm ra ngoài còn 0 · 31/31 `↗` · 156/156 chip · `--check` ĐẠT. File 403.499 bytes, md5 `409f5608…`.
+  375 ô vàng · bấm ra ngoài còn 0 · 31/31 `↗` · 156/156 chip · `--check` ĐẠT. File 403.579 bytes, md5 `7042f961…`.
 - **2026-11-13 (vòng 17 — số trong "Trả lời ngắn" bấm được):** người học: ô xanh lá ở đầu mỗi câu có dẫn ra số kết quả, muốn
   **bấm vào từng số là tô vàng + chỉ ra chỗ lấy số ấy**. Đã làm: `top_parts()` cắt công thức theo `&` ở **cấp ngoài cùng**
   (chuỗi trong hàm như `"0.0%"` của `TEXT` không phải chữ hiện ra → bỏ), `ans_html()` ghép lại từng mẩu, `num_span()` bọc
@@ -462,7 +463,17 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   thêm điều kiện `!nu`. Chỉ bọc cụm **đúng là số** (`NUM_ONLY.fullmatch`) — `Meta Ads`, `SCALE (+20% budget)` để nguyên chữ.
   Kiểm: **42 số / 8 câu** (2.1: 3 · 2.2: 5 · 2.3: 5 · 2.4: 3 · 2.5: 5 · 2.6: 5 · 2.7: 8 · 2.8: 8) · 42/42 mở hộp + tô vàng
   (hoặc có chip `↗ tab`) · 0 hộp chứa tên hàm · 0 tự trỏ vào chính ô trả lời · phần cũ không đổi (556/556 hộp · 375 ô vàng ·
-  31/31 `↗` · 156/156 chip · 12 tab 0 tràn) · `--check` ĐẠT. File 403.499 bytes, md5 `409f5608…`.
+  31/31 `↗` · 156/156 chip · 12 tab 0 tràn) · `--check` ĐẠT. File 403.579 bytes, md5 `7042f961…`.
+- **2026-11-13 (vòng 18 — lề trong cột phải):** người học gửi 2 ảnh: dòng `Banner 8,0` và `Meta Ads $26.000 13.000 1,20` có chữ
+  dính sát mép trái, ô màu dính mép phải. Đo bằng Chrome headless: `.pr` chỉ có **2px** lề hai bên; `table.mini` chữ **5px** nhưng ô
+  màu **2,5px** và ô màu header/`Loại` đôi khi chạm đúng mép bảng. Sửa **1 chỗ trong CSS**: `.pr{padding:3px 6px}`,
+  `table.mini th,td{padding:3px 6px}`, `.lbh/.lbcell{padding:3px 6px 3px 0;width:22px}`, `th[scope=row]{padding-left:6px}`,
+  `.pnote/.phow` 2px → 6px; thêm `.lb{display:inline-block;width:16px;text-align:center}` vì emoji 🟨 đo ra 11px còn 🟩 17px nên
+  **mép phải mỗi ô màu lệch nhau 2,5px** dù cùng cột. Đo lại: chữ 6px · ô màu 6px · **ô màu chỉ còn 1 toạ độ x (1405, spread 0,0)**
+  · nút `↗` 1 toạ độ x (1383) · 2 bảng mini rộng 464/464 không tràn · panel không tràn. Nghiệm thu đầy đủ vẫn xanh:
+  tab=12 · 0 tab tràn · 0 ô tràn chữ · 556/556 hộp · 139 hiện-1-lần · 375 ô tô vàng · 0 vàng sót · 156/156 chip ·
+  31/31 `↗` (0 nút sai đích) · 42/42 số trong "Trả lời ngắn" · SUMIFS vẫn đúng (`B21`=7 ô, `B28`/`B30`=3 dòng) · `--check` ĐẠT.
+  File 403.579 bytes, md5 `7042f961…`.
 
 ### 12.4 Nghiệm thu — chạy lại khi buộc phải build
 
