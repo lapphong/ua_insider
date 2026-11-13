@@ -927,6 +927,8 @@ def render_sheet(m, name, usage):
                         bits += ['data-src="%s"' % ",".join("%s:%d" % (s, rr) for s, rr in data[:40])]
                         direct = {(s, rr) for s, _c, rr in refs_of(raw, name)
                                   if s in DATA_SHEETS} if isinstance(raw, str) else set()
+                        if not direct:      # so phai tinh qua tab khac -> to cot phai cung khong hieu
+                            bits.append('data-nop="1"')
                         for s, rr in data:
                             usage.setdefault((s, rr), {})[f"c-{name}-{addr}"] = (
                                 short, name, addr, lab, (s, rr) in direct, text)
@@ -943,16 +945,22 @@ def render_sheet(m, name, usage):
                     # dich de mui ten ↗ -> thieu cai nay thi dong nguon khong co ↗
                     addr = f"{openpyxl.utils.get_column_letter(x['c0'])}{x['r']}"
                     data, _sf = m.sources(name, x["c0"], x["r"])
+                    raw = x["cell"].value
+                    uses = internal_uses(m, name, raw)
                     attr = ' id="c-%s-%s"' % (name, addr)
+                    if uses:      # "chưa/ĐẠT" phai to vang dung 2 o no so sanh (vd B7 + B15)
+                        cls.append("uses")
+                        attr += ' data-uses="%s"' % esc(",".join("%s:%s" % (s, a) for s, a in uses))
                     if data:
                         lab = label_of(ws, x["r"], text)
                         cls.append("src")
+                        direct = {(s, rr) for s, _c, rr in refs_of(raw, name)
+                                  if s in DATA_SHEETS}
                         attr += (' data-lab="%s" tabindex="0" data-src="%s"'
                                  % (esc(lab),
                                     ",".join("%s:%d" % (s, rr) for s, rr in data[:40])))
-                        raw = x["cell"].value
-                        direct = {(s, rr) for s, _c, rr in refs_of(raw, name)
-                                  if s in DATA_SHEETS}
+                        if not direct:
+                            attr += ' data-nop="1"'
                         for s, rr in data:
                             usage.setdefault((s, rr), {})[f"c-{name}-{addr}"] = (
                                 short, name, addr, lab, (s, rr) in direct, text)
@@ -1473,7 +1481,7 @@ document.addEventListener('click',e=>{
   if(!cd&&!s&&!nu&&!e.target.closest('td[data-uses]')){unmark();calcHide();dnote.innerHTML=HINT;}
   else{
     unmark();
-    if(s){
+    if(s&&!s.dataset.nop){
       s.classList.add('on');
       let first=null,n=0;
       s.dataset.src.split(',').filter(Boolean).forEach(k=>{
@@ -1484,7 +1492,7 @@ document.addEventListener('click',e=>{
       dnote.innerHTML=n?('← <b>'+s.dataset.lab+'</b> · '+n+' ô nguồn bên dưới'):HINT;
       if(first)first.scrollIntoView({block:'center'});
       if(innerWidth<=1100)document.body.classList.add('datopen');
-    }else if(!cd&&!nu){                  /* o tinh toan khong doc duoc phep tinh: to cac o no lay so */
+    }else if(!cd&&!nu){    /* so phai tinh qua tab khac / o chữ: chi to o cung tab */
       markUses(e.target.closest('td[data-uses]'));
     }
     if(cd||nu)calcShow(cd||nu);else calcHide();
