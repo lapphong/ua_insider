@@ -1,5 +1,5 @@
 commit:
-	sh scripts/commit.sh "$(message)"
+	sh scripts/commit.sh "$(msg)"
 
 amend:
 	sh scripts/amend.sh
