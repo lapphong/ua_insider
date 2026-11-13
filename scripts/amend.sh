@@ -3,6 +3,6 @@ set -e
 
 git add .
 git commit --amend
-git push -f
+# git push -f
 
 echo "Amend commit and push completed successfully."
