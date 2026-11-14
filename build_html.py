@@ -175,8 +175,24 @@ def vn_num(s):
 
 
 def fmt(v, nf):
+    """Dinh dang so, ho tro chu bao quanh kieu Excel: 0.0" ngày" · "lệch "0.00"""
+    pre = suf = ""
+    num = v is not None and isinstance(v, (int, float)) and not isinstance(v, bool)
+    if isinstance(nf, str) and num:
+        m = re.match(r'^"([^"]*)"(.*)$', nf)
+        if m:
+            pre, nf = m.group(1), m.group(2)
+        m = re.search(r'"([^"]*)"$', nf or "")
+        if m:
+            suf, nf = m.group(1), nf[:m.start()]
+    return pre + fmt_core(v, nf) + suf
+
+
+def fmt_core(v, nf):
     if v is None:
         return ""
+    if isinstance(v, (int, float)) and not isinstance(v, bool) and v == 0:
+        v = 0.0          # -0,00 -> 0,00 (bang chenh lech toan so 0 van hien dau tru)
     if isinstance(v, bool):
         return "CÓ" if v else "KHÔNG"
     if isinstance(v, str):
@@ -301,7 +317,65 @@ def merge_map(ws):
 
 
 # o trong xlsx dat nham dinh dang % (hien "29.958.460,1%") - hien lai thanh tien
-FORMAT_FIX = {("2.8_PHAN_TANG", "B20"): '"$"#,##0'}
+# + checklist Kết luận: so tho "3,63 / 1,00 / 0,00" khong co don vi nen doc khong ra
+#   (0,00 la CHENH LECH chu khong phai doanh thu -> phai ghi "lệch 0,00")
+FORMAT_FIX = {
+    ("2.8_PHAN_TANG", "B20"): '"$"#,##0',
+    ("E_KET_LUAN", "B11"): '0.00" : 1"',
+    ("E_KET_LUAN", "B12"): '0.0" ngày"',
+    ("E_KET_LUAN", "B13"): '0" quyết định"',
+    ("E_KET_LUAN", "B14"): "0.0%",
+    ("E_KET_LUAN", "B15"): '0" từ"',
+    ("E_KET_LUAN", "B16"): '"lệch "0.00',
+    ("E_KET_LUAN", "B17"): "0.0%",
+}
+
+# o CHU sua lai cho ro nghia (khong doi so)
+TEXT_FIX = {
+    ("E_KET_LUAN", "A9"): "Công thức: mỗi tiêu chí so sánh trực tiếp với ngưỡng trong "
+                          "bảng giả định và trả về ĐẠT / KHÔNG ĐẠT",
+    ("E_KET_LUAN", "A16"): "LTV cộng dồn khớp (IAA+IAP+Sub) — chênh lệch phải = 0",
+}
+
+# So trong phan NHAN DINH (tab Ket luan) bam duoc -> hop "so gi ra so nay" + nut nhay sang tab goc.
+# (ngu canh trong cau, so can bam, sheet, o, nhan)
+ANS_LINK = {
+    ("E_KET_LUAN", "A5"): [
+        ("khoảng $2.10 mỗi install", "$2.10", "2.7_LTV_CAC", "K10", "CAC tối đa được phép trả"),
+        ("365 ngày $6.31", "$6.31", "2.5_LTV", "G49", "Net LTV365 blended"),
+        ("là $1.74, gồm", "$1.74", "2.7_LTV_CAC", "B10", "CAC thật blended"),
+        ("gồm CPI $1.45", "$1.45", "2.2_CPI_CAC", "D10", "CPI blended"),
+        ("và $0.29 chi phí", "$0.29", "2.2_CPI_CAC", "G10", "Chi phí ngoài media / install"),
+        ("khoảng $0.37", "$0.37", "2.7_LTV_CAC", "L10", "Dư địa CAC"),
+        ("hoàn vốn quanh D21", "D21", "2.4_ROAS", "G35", "Payback blended (ngày)"),
+        ("gross LTV $7.66", "$7.66", "2.5_LTV", "G29", "Gross LTV365 base"),
+        ("gross margin 80%", "80%", "2.5_LTV", "G34", "Gross margin sau phí sàn"),
+        ("là $2.17 —", "$2.17", "2.2_CPI_CAC", "D18", "CAC điều chỉnh theo gross"),
+        ("khoảng 83% gross LTV", "83%", "2.5_LTV", "G61", "% Subscription trong gross LTV"),
+        ("IAP 11%", "11%", "2.5_LTV", "G60", "% IAP trong gross LTV"),
+        ("IAA 6%", "6%", "2.5_LTV", "G59", "% IAA trong gross LTV"),
+        ("Google đạt 4.68:1", "4.68:1", "2.7_LTV_CAC", "E8", "LTV:CAC Google"),
+        ("hoàn vốn D14", "D14", "2.7_LTV_CAC", "F8", "Payback Google (ngày)"),
+        ("Meta 3.07:1", "3.07:1", "2.7_LTV_CAC", "E7", "LTV:CAC Meta"),
+        ("hoàn vốn D27", "D27", "2.7_LTV_CAC", "F7", "Payback Meta (ngày)"),
+        ("TikTok chỉ 1.53:1", "1.53:1", "2.7_LTV_CAC", "E9", "LTV:CAC TikTok"),
+        ("hoàn vốn D110", "D110", "2.7_LTV_CAC", "F9", "Payback TikTok (ngày)"),
+        ("trial start 1.6%", "1.6%", "2.6_PLTV", "F18", "Trial start 24h TikTok"),
+        ("benchmark 14%", "14%", "2.6_PLTV", "C18", "Trial start benchmark"),
+        ("D1 retention 17%", "17%", "2.6_PLTV", "F15", "D1 retention TikTok"),
+        ("pLTV:CAC 1.98", "1.98", "2.6_PLTV", "D32", "pLTV:CAC TikTok"),
+        ("ngưỡng pause 2.0", "2.0", "2.6_PLTV", "B8", "Ngưỡng pause"),
+        ("Google đạt 4.29", "4.29", "2.6_PLTV", "C32", "pLTV:CAC Google"),
+        ("ngưỡng scale 3.5", "3.5", "2.6_PLTV", "B7", "Ngưỡng scale"),
+        ("tăng 20% budget", "20%", "2.6_PLTV", "B10", "Mức tăng budget khi scale"),
+        ("Meta 2.79", "2.79", "2.6_PLTV", "B32", "pLTV:CAC Meta"),
+        ("blended lên 3.78", "3.78", "2.7_LTV_CAC", "C20", "LTV:CAC sau khi pause TikTok"),
+        ("chỉ 5.5% user", "5.5%", "2.8_PHAN_TANG", "B18", "Whale + Dolphin: % installs"),
+        ("nhưng tạo 78.6% doanh thu", "78.6%", "2.8_PHAN_TANG", "B19", "Whale + Dolphin: % doanh thu"),
+        ("tROAS D7 65%", "65%", "2.8_PHAN_TANG", "B31", "tROAS D7 khởi điểm"),
+        ("tới ngưỡng 72%", "72%", "2.8_PHAN_TANG", "B28", "tROAS D7 tối thiểu"),
+    ],
+}
 
 
 SHEET_WORD = {"D_GIA_DINH": "bảng giả định", "C_DU_LIEU_THAT": "bảng số thật"}
@@ -328,6 +402,8 @@ def display(m, ws, col, row):
     nf = FORMAT_FIX.get((ws.title.upper(), addr), c.number_format)
     if v is None:
         return "", False
+    if isinstance(v, str) and (ws.title.upper(), addr) in TEXT_FIX:
+        return TEXT_FIX[(ws.title.upper(), addr)], False
     if isinstance(v, str) and v.startswith("="):
         got = m.val.get((ws.title.upper(), addr))
         if got is None:
@@ -717,6 +793,19 @@ def num_span(m, sheet, expr, chunk):
     return f'<span {" ".join(bits)}>{esc(chunk)}</span>'
 
 
+def links_html(m, sheet, addr, text):
+    """So trong phan nhan dinh: hop chi hien KET QUA (= so) + nut nhay tab goc, khong in phep tinh."""
+    h = esc(text)
+    for ctx, num, sh, ad, lab in ANS_LINK.get((sheet.upper(), addr), []):
+        got = cell_value(m, sh, ad)
+        if m.by_up.get(sh) is None or got is None:
+            continue
+        span = ('<span class="num" data-hd="Kết luận" data-lab="%s" data-uses="%s:%s" '
+                'data-res="%s" tabindex="0">%s</span>' % (esc(lab), sh, ad, esc(got), esc(num)))
+        h = h.replace(esc(ctx), esc(ctx).replace(esc(num), span, 1), 1)
+    return h
+
+
 def ans_html(m, sheet, formula, text):
     """Cau 'Tra loi ngan': moi con so thanh 1 nut -> bam la biet so ay lay tu dau."""
     if not (isinstance(formula, str) and formula.startswith("=")):
@@ -991,6 +1080,9 @@ def render_sheet(m, name, usage):
                 cid = ' id="c-%s-%s"' % (name, f"{openpyxl.utils.get_column_letter(filled[0][0])}{r}")
             inner = (ans_html(m, name, filled[0][5].value, text)
                      if kind == "ans" and filled[0][5] is not None else esc(text))
+            kaddr = f"{openpyxl.utils.get_column_letter(filled[0][0])}{r}"
+            if (name.upper(), kaddr) in ANS_LINK:
+                inner = links_html(m, name, kaddr, text)
             out.append(f'<table class="grid"><tr class="{cls}"><td{cid}>{inner}</td></tr></table>')
             continue
 
@@ -1442,7 +1534,7 @@ function calcShow(td){
   const e=document.createElement('div');e.className='cx';e.textContent=td.dataset.calc;
   /* o chi chep lai 1 con so (khong co phep tinh) thi chi hien ket qua 1 lan */
   const norm=t=>(t||'').replace(/\s/g,'');
-  if(norm(td.dataset.calc)!==norm(td.dataset.res))calc.append(e);
+  if(td.dataset.calc&&norm(td.dataset.calc)!==norm(td.dataset.res))calc.append(e);
   if(td.dataset.res){
     const d=document.createElement('div');d.className='cd';d.textContent='= '+td.dataset.res;calc.append(d);
   }
@@ -1454,9 +1546,12 @@ function calcShow(td){
   if(chips.length){
     const row=document.createElement('div');row.className='cg';
     chips.forEach(([sh,ad])=>{
-      const tab=document.querySelector('.tab[data-t="'+sh+'"]');
+      /* data-uses ghi ten sheet bang CHU HOA (2.6_PLTV) con id tren trang la chu thuong
+         (2.6_pLTV) -> phai lay dung data-t cua tab, khong ghep thang chuoi */
+      const tab=[...document.querySelectorAll('.tab')].find(t=>t.dataset.t.toUpperCase()===sh.toUpperCase());
+      const key=tab?tab.dataset.t:sh;
       const btn=document.createElement('button');btn.className='gotab';
-      btn.dataset.sheet=sh;btn.dataset.cell='c-'+sh+'-'+ad;
+      btn.dataset.sheet=key;btn.dataset.cell='c-'+key+'-'+ad;
       btn.textContent='↗ tab '+(tab?tab.textContent:sh);
       row.append(btn);
     });
