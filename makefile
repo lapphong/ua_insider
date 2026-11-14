@@ -3,3 +3,6 @@ commit:
 
 amend:
 	sh scripts/amend.sh
+
+push:
+	git push -f	

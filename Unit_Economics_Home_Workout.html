@@ -913,10 +913,16 @@ document.addEventListener('click',e=>{
   }
   if(e.target.closest('#calc'))return;      /* bam trong hop thi khong tat */
   const cd=e.target.closest('td.calc'),s=e.target.closest('.src'),nu=e.target.closest('.num');
-  if(!cd&&!s&&!nu&&!e.target.closest('td[data-uses]')){unmark();calcHide();dnote.innerHTML=HINT;}
+  const tg=e.target.closest('td[data-uses]');
+  if(!cd&&!s&&!nu&&!tg){unmark();calcHide();dnote.innerHTML=HINT;}
   else{
     unmark();
-    if(s&&!s.dataset.nop){
+    /* o co so cung tab -> to vang so do (doc ra ket qua ngay tren bang);
+       chi to cot phai khi khong co o nao cung tab (so phai lay tu bang gia dinh) */
+    const here=document.querySelector('.sheet.on').id.slice(2).toUpperCase();
+    const same=!!(tg&&(tg.dataset.uses||'').split(',')
+                   .some(k=>k.slice(0,k.lastIndexOf(':')).toUpperCase()===here));
+    if(s&&!same&&!s.dataset.nop){
       s.classList.add('on');
       let first=null,n=0;
       s.dataset.src.split(',').filter(Boolean).forEach(k=>{
@@ -927,8 +933,8 @@ document.addEventListener('click',e=>{
       dnote.innerHTML=n?('← <b>'+s.dataset.lab+'</b> · '+n+' ô nguồn bên dưới'):HINT;
       if(first)first.scrollIntoView({block:'center'});
       if(innerWidth<=1100)document.body.classList.add('datopen');
-    }else if(!cd&&!nu){    /* so phai tinh qua tab khac / o chữ: chi to o cung tab */
-      markUses(e.target.closest('td[data-uses]'));
+    }else if(!cd&&!nu){    /* co so cung tab: to vang cac o do */
+      markUses(tg);
     }
     if(cd||nu)calcShow(cd||nu);else calcHide();
   }

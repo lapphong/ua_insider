@@ -23,7 +23,7 @@
 | 2 | `Unit_Economics_Home_Workout_bt2.xlsx` — toàn bộ bài làm, 1 file duy nhất | ✅ xong (14 sheet, 0 công thức lỗi, 40/40 số kiểm tra khớp) |
 | 3 | `Channel_Plan_Home_Workout.xlsx` — Cấp 3 Channel Plan | ✅ xong (9 sheet, 2 vùng/sheet, 0 công thức lỗi, 65/65 bảng có dòng công thức, 0 merge chồng, 0 bước thiếu panel) |
 | 4 | `Channel_Plan_Home_Workout.docx` — bản đọc/nộp của Cấp 3, sinh từ file xlsx | ✅ xong (9 câu · 38 bước · 9 kết luận · 159 bảng) |
-| 5 | `Unit_Economics_Home_Workout.html` — bản đọc của Cấp 2, chia 6.5:3.5, sinh từ file xlsx bằng `build_html.py` | ✅ xong · bản mới nhất 2026-11-13 (có hộp "số nào ra số nào") · 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 31 nút `↗` đã kiểm từng cái · md5 `27a15f706a40b9444d74e994a63424d8` |
+| 5 | `Unit_Economics_Home_Workout.html` — bản đọc của Cấp 2, chia 6.5:3.5, sinh từ file xlsx bằng `build_html.py` | ✅ xong · bản mới nhất 2026-11-13 (có hộp "số nào ra số nào") · 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 31 nút `↗` đã kiểm từng cái · md5 `2c72ae6db7f96e97aceeefac480b2baf` |
 
 **Quy tắc trình bày bảng tính:** trên **mỗi bảng** (không chỉ mỗi sheet) phải có 1 dòng ghi công thức ngay phía trên dòng tiêu đề, dạng:
 `Công thức: <tên chỉ số> = <công thức> | <ghi chú ngắn>`
@@ -255,7 +255,7 @@ Kiểm tra: `formulas.ExcelModel().loads(path).finish().calculate()` → đếm 
 `Unit_Economics_Home_Workout_bt2.xlsx` bằng `build_html.py`; **không sửa file xlsx**, không đụng 2 file Cấp 3.
 
 > **TRẠNG THÁI: bản mới nhất 2026-11-13.** Bản 12/11 đã chốt, sau đó người học yêu cầu thêm hộp "số nào ra số nào"
-> (§12.5) nên file được mở lại. Bản đang nộp: 410.472 bytes · md5 `27a15f706a40b9444d74e994a63424d8` ·
+> (§12.5) nên file được mở lại. Bản đang nộp: 410.815 bytes · md5 `2c72ae6db7f96e97aceeefac480b2baf` ·
 > 12 tab · 515 ô nhảy sang cột phải · 556 ô có phép tính · 101 `ⓘ` · 31 nút `↗` · 58 dòng nguồn có anchor · 0 ô lỗi.
 > Chỉ được sinh lại từ `build_html.py` (sửa giả định ở `D_Gia_Dinh` rồi chạy 1 lệnh), **không sửa tay file HTML**.
 
@@ -300,7 +300,7 @@ cd /Users/buzzlp./Downloads/ua
 ```
 
 Nghiệm thu (máy kiểm, `--check`): **12 tab · 12 sheet · 515 ô bấm được · 86 ô nhập tay · 101 `ⓘ` · 31 nút `↗` ·
-58 dòng nguồn có anchor · 0 nguồn thiếu anchor · 0 ô lỗi (#REF!/#VALUE!/None) · 410.472 bytes**.
+58 dòng nguồn có anchor · 0 nguồn thiếu anchor · 0 ô lỗi (#REF!/#VALUE!/None) · 410.815 bytes**.
 Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + tô 4 dòng (69–71 + 81) · click ô `self` → toast · hover `ⓘ` → tooltip không bị cắt · 900px → drawer mở/đóng được · trong panel cả 40 ô màu chỉ có 1 toạ độ x, 31 nút `↗` cũng 1 toạ độ x, và **31/31 nút nhảy đúng ô** (mỗi ô đích có `data-src` chứa dòng panel tương ứng).
 
 ### 12.2 Quyết định riêng của bản HTML
@@ -427,7 +427,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   Kiểm: **31 nút `↗`, 31/31 nhảy đúng tab + tô đúng ô, 0 ô đích không tồn tại, 0 nút trỏ tới ô không dùng số đó** ·
   D7 → `2.5_LTV!B10` (18,0%), D30 → `B12` (8,0%) · Banner/Inter/Rewarded → `2.3_eCPM!B42` (ô ARPDAU IAA — **ô duy nhất**
   trong model dùng 3 số này) · 556/556 hộp phép tính · 515 ô bấm được · 0 tràn ·
-  375 ô tô vàng · 0 còn vàng sau khi bấm ra ngoài · 156/156 chip đổi tab. File 410.472 bytes, md5 `27a15f70…`.
+  375 ô tô vàng · 0 còn vàng sau khi bấm ra ngoài · 156/156 chip đổi tab. File 410.815 bytes, md5 `2c72ae6d…`.
 - **2026-11-13 (vòng 14b — chỉ thêm đúng 2 mũi tên):** người học nói rõ: ở bảng retention chỉ xin thêm `↗` cho **D7 và D30**,
   không phải thêm hết. Bảng giả định đã có `NO_ARROW = {("D_GIA_DINH",20),("D_GIA_DINH",22),("D_GIA_DINH",24)}` (D3 · D14 · D60)
   → retention còn **7 nút**: D0 · D1 · **D7** · **D30** · D90 · D180 · D365 (D3/D14/D60 không có). Tổng 34 → **31 nút**,
@@ -450,7 +450,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   Interstitial, `B30` = Rewarded. Lỗi tự phát hiện khi test: bản đầu tính "ô nào bị loại" nên ô có **nhiều `SUMIF`** (trả lời
   ngắn `2.1!A3`, 3 `SUMIF` IAA/IAP/Sub trên cùng vùng) bị loại sạch → đổi sang tính "ô nào **được** lấy" rồi hợp lại
   (2.1!A3 còn 18 ô, đúng: dòng `Khác` không có `SUMIF` nào dùng). Kiểm: 12 tab 0 tràn · 0 ô tràn chữ · 556/556 hộp ·
-  375 ô vàng · bấm ra ngoài còn 0 · 31/31 `↗` · 156/156 chip · `--check` ĐẠT. File 410.472 bytes, md5 `27a15f70…`.
+  375 ô vàng · bấm ra ngoài còn 0 · 31/31 `↗` · 156/156 chip · `--check` ĐẠT. File 410.815 bytes, md5 `2c72ae6d…`.
 - **2026-11-13 (vòng 17 — số trong "Trả lời ngắn" bấm được):** người học: ô xanh lá ở đầu mỗi câu có dẫn ra số kết quả, muốn
   **bấm vào từng số là tô vàng + chỉ ra chỗ lấy số ấy**. Đã làm: `top_parts()` cắt công thức theo `&` ở **cấp ngoài cùng**
   (chuỗi trong hàm như `"0.0%"` của `TEXT` không phải chữ hiện ra → bỏ), `ans_html()` ghép lại từng mẩu, `num_span()` bọc
@@ -463,7 +463,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   thêm điều kiện `!nu`. Chỉ bọc cụm **đúng là số** (`NUM_ONLY.fullmatch`) — `Meta Ads`, `SCALE (+20% budget)` để nguyên chữ.
   Kiểm: **42 số / 8 câu** (2.1: 3 · 2.2: 5 · 2.3: 5 · 2.4: 3 · 2.5: 5 · 2.6: 5 · 2.7: 8 · 2.8: 8) · 42/42 mở hộp + tô vàng
   (hoặc có chip `↗ tab`) · 0 hộp chứa tên hàm · 0 tự trỏ vào chính ô trả lời · phần cũ không đổi (556/556 hộp · 375 ô vàng ·
-  31/31 `↗` · 156/156 chip · 12 tab 0 tràn) · `--check` ĐẠT. File 410.472 bytes, md5 `27a15f70…`.
+  31/31 `↗` · 156/156 chip · 12 tab 0 tràn) · `--check` ĐẠT. File 410.815 bytes, md5 `2c72ae6d…`.
 - **2026-11-13 (vòng 18 — lề trong cột phải):** người học gửi 2 ảnh: dòng `Banner 8,0` và `Meta Ads $26.000 13.000 1,20` có chữ
   dính sát mép trái, ô màu dính mép phải. Đo bằng Chrome headless: `.pr` chỉ có **2px** lề hai bên; `table.mini` chữ **5px** nhưng ô
   màu **2,5px** và ô màu header/`Loại` đôi khi chạm đúng mép bảng. Sửa **1 chỗ trong CSS**: `.pr{padding:3px 6px}`,
@@ -473,7 +473,17 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   · nút `↗` 1 toạ độ x (1383) · 2 bảng mini rộng 464/464 không tràn · panel không tràn. Nghiệm thu đầy đủ vẫn xanh:
   tab=12 · 0 tab tràn · 0 ô tràn chữ · 556/556 hộp · 139 hiện-1-lần · 375 ô tô vàng · 0 vàng sót · 156/156 chip ·
   31/31 `↗` (0 nút sai đích) · 42/42 số trong "Trả lời ngắn" · SUMIFS vẫn đúng (`B21`=7 ô, `B28`/`B30`=3 dòng) · `--check` ĐẠT.
-  File 410.472 bytes, md5 `27a15f70…`.
+  File 410.815 bytes, md5 `2c72ae6d…`.
+- **2026-11-13 (vòng 20 — ưu tiên ô cùng tab, tab 2.7 cột H–L):** người học: tab 2.7, bấm từ cột `Phân loại` tới mấy cột sau
+  thì phải tô ô dữ liệu **đằng trước** (để thấy số nào ra kết quả đó), không tô vàng bảng giả định bên phải. Nguyên nhân: điều kiện
+  cũ (`data-nop`) chỉ nhìn "công thức có trỏ thẳng bảng giả định không" → `H7 = IF(E7<1, …, E7<D_Gia_Dinh!B11, …)` **có** trỏ thẳng
+  `B11` nên vẫn tô panel (19 dòng), dù ô đáng tô là `E7` ngay cạnh. Sửa **1 chỗ trong JS**: tính `same` (có ô nguồn cùng tab
+  trong `data-uses`) rồi đổi `if(s&&!s.dataset.nop)` → `if(s&&!same&&!s.dataset.nop)`; nhánh còn lại gọi `markUses(tg)`.
+  103 ô "vừa có nguồn cùng tab vừa trỏ thẳng giả định" đổi hành vi theo (2.5 `B26/B28…B49` giờ tô `B25/B29/B40-42` thay vì 3–17 dòng panel).
+  Đo lại (Chrome headless): `2.7!H7`→`E7` · `I7`→`E7` · `J7`→`F7` · `K7`→`D7` · `L7`→`B7`+`K7` · `B18`→`B16`+`B17` · `C19`→`C17` ·
+  `B25`→`K10` · `B26`→`B10` · `B27`→`F10` — **panel=0 ở cả 21 ô thử**. Ô không có nguồn cùng tab vẫn tô panel (`2.5!B7` 1 dòng,
+  `2.5!B35` 1 dòng). Hồi quy: 12 tab · 0 tràn · 0 ô tràn chữ · 556/556 hộp · 139 hiện-1-lần · 375 ô tô vàng · **57 ô tô panel**
+  (trước 148) · 0 vàng sót · 156/156 chip · 42/42 số · 31/31 `↗` · `--check` ĐẠT. File 410.815 bytes, md5 `2c72ae6d…`.
 - **2026-11-13 (vòng 19 — ô "chưa/ĐẠT" phải tô bảng trên, không tô giả định):** người học: ở tab 2.4, bấm vào `chưa/ĐẠT`
   thì phải tô vàng `B7` (ROAS bảng A) so với `B15` (ngưỡng hòa vốn), chứ tô vàng các ô giả định bên phải là vô nghĩa vì muốn ra số
   đó phải tính vòng qua tab 2.2 + 2.5. Hai lỗi: (1) ô **chữ** có công thức (`IF(...)="ĐẠT"`) chỉ được gắn `data-src`, **không** gắn
@@ -483,7 +493,7 @@ Thử tay bằng Chrome headless: đổi tab → click `2.2!H10` → nhảy + t�
   `2.4!C15` → `B7`+`B15` · `D15` → `C7`+`B15` · `C18` → `B10`+`B18` · `I32` ("Hòa vốn khoảng D27") → `G32` · `G32` → `B24`+`C32`+`G24`
   · `B15`/`B24`/`C27` vẫn có hộp phép tính nhưng **0 dòng vàng** ở cột phải. Ô lấy trực tiếp giả định vẫn tô như cũ (`2.5!B26` → 3
   dòng + `B25`). Tổng: 148 ô tô cột phải / 375 ô tô vàng cùng tab / 0 ô bấm mà không làm gì (trừ nhãn cột A) · 556 hộp · 42 số ·
-  156/156 chip · 31/31 `↗` (0 sai đích) · 12 tab 0 tràn · `--check` ĐẠT. File 410.472 bytes, md5 `27a15f70…`.
+  156/156 chip · 31/31 `↗` (0 sai đích) · 12 tab 0 tràn · `--check` ĐẠT. File 410.815 bytes, md5 `2c72ae6d…`.
 
 ### 12.4 Nghiệm thu — chạy lại khi buộc phải build
 
@@ -524,6 +534,7 @@ Bấm ra ngoài (hoặc `Esc`) thì tắt. Hộp nằm trong khung bài làm, kh
 | Ô chỉ chép lại 1 con số | `describe()` ra đúng bằng kết quả (vd `Chỉ số pLTV` = `=E23` → `1,01`) → **chỉ hiện kết quả 1 lần** (`= 1,01`), không in thêm dòng `1,01` trùng. Hiện có 139 ô như vậy |
 | Ô công thức không đọc được (`SUMIFS`, `COUNTIF`…) | Không có hộp phép tính, nhưng **vẫn phải tô được ô nó lấy số**: gắn `data-uses` + class `.uses`; bấm vào là tô vàng các ô nguồn **cùng tab** (khác tab thì không có hộp để hiện nút nên bỏ). **Chỉ tô ô của dòng KHỚP điều kiện**, không tô cả vùng: `crit_split()` lọc theo cột điều kiện. VD `2.3_eCPM!B21` (Impressions US) → 7 ô = `A7:A9` + `C7:C9` + `A21` (không tô EU/SEA); `B28` (Banner) → `B7,B10,B13` + `C7,C10,C13`. Ô có nhiều `SUMIF` (vd trả lời ngắn 2.1) thì lấy **hợp** các dòng khớp, không loại trừ nhau. **Không** gắn nhãn "ô nhập tay" cho ô có công thức: `selfref` chỉ là ô nhập tay khi ô **không** có công thức |
 | Số ở tab khác | Không tô được (đang ẩn) → hiện nút `↗ tab 2.5` trong hộp; bấm là đổi tab + tô đúng ô đó |
+| Ưu tiên ô cùng tab | Bấm một ô mà công thức có **ô nguồn cùng tab** thì **luôn tô vàng các ô đó**, **không** tô cột phải — kể cả khi công thức cũng trỏ thẳng bảng giả định. Chỉ khi ô **không** có nguồn cùng tab (số phải lấy từ bảng giả định / tab khác) mới tô cột phải. Cài đặt: JS tính `same` = có phần tử nào trong `data-uses` thuộc sheet đang mở, `if(s&&!same&&!s.dataset.nop)` mới tô panel, còn lại rơi xuống `markUses()`. Đây là lý do tab 2.7 cột `Phân loại`/`LTV ≥ 3×CAC?`/`Payback < 12 tháng?`/`CAC tối đa` tô `E7`/`F7`/`D7` thay vì 19 dòng giả định |
 | Khi nào tô cột phải | **Chỉ khi công thức lấy số TRỰC TIẾP từ bảng giả định / bảng số thật** (`D_Gia_Dinh`, `C_Du_Lieu_That`). Số mà phải tính vòng qua tab khác (công thức chỉ trỏ `2.5_LTV`, `2.2_CPI_CAC`…) thì **không tô cột phải** — tô vàng các ô cùng tab (hoặc chỉ hiện hộp phép tính nếu không có ô cùng tab). Cài đặt: ô có `data-src` nhưng không có ô giả định trực tiếp thì gắn `data-nop="1"`; JS chỉ tô panel khi `.src` **không** có `data-nop`. `data-src` vẫn giữ nguyên trên mọi ô vì nút `↗` ở cột phải chọn đích từ nó (31 nút không đổi) |
 | Cột phải | Dòng nguồn tô vàng `.hl` **giữ nguyên** (trước đây fade sau 2,2s — người học kêu mất), chỉ xoá khi bấm ra ngoài. Bấm nút `↗` ở cột phải cũng tô `.hl` dòng đích và cuộn tới, không fade |
 | Note ở tiêu đề cột | Cột nào có ô lấy số từ tab khác → tooltip `ⓘ` thêm dòng `Có dùng số của tab 2.5 · 2.2.` — **hết, không thêm câu "bấm vào số để xem phép tính"** (người học đã bảo bỏ) |
