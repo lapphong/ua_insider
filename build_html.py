@@ -6,6 +6,7 @@ Ra: index.html (mac dinh = bai Cấp 2), channel-plan/index.html,
 Chay:  ./venv3/bin/python build_html.py
 Kiem:  ./venv3/bin/python build_html.py --check
 """
+import hashlib
 import html
 import os
 import re
@@ -18,6 +19,10 @@ warnings.filterwarnings("ignore")
 
 SRC = "/Users/buzzlp./Downloads/ua/Unit_Economics_Home_Workout_bt2.xlsx"
 ROOT = "/Users/buzzlp./Downloads/ua"
+# Moi file build sinh ra. So do (md5 + bytes) ghi vao docs/manifest.txt, khong chep tay vao docs.
+OUTPUTS = ["index.html", "unit-economics/index.html", "channel-plan/index.html",
+           "assets/app.css", "assets/app.js"]
+MANIFEST = f"{ROOT}/docs/manifest.txt"
 # Trang tổng (index.html) mặc định là bài Cấp 2; dropdown đổi sang bài khác.
 # Đường dẫn tính từ gốc repo. Thêm bài mới = thêm 1 dòng.
 PAGES = [("index.html", "Unit Economics"), ("channel-plan/index.html", "Channel Plan")]
@@ -1410,8 +1415,7 @@ def check(doc, m, usage):
     ok = True
     css = open(f"{ROOT}/assets/app.css", encoding="utf-8").read()
     js = open(f"{ROOT}/assets/app.js", encoding="utf-8").read()
-    need = ["assets/app.css", "assets/app.js", "index.html",
-            "unit-economics/index.html", "channel-plan/index.html"]
+    need = OUTPUTS
     miss_files = [f for f in need if not os.path.exists(f"{ROOT}/{f}")]
     if miss_files:
         print("  THIEU FILE:", ", ".join(miss_files))
@@ -1473,11 +1477,23 @@ def check(doc, m, usage):
     return ok
 
 
+def write_manifest():
+    """Mot cho duy nhat ghi so do file — docs chi tro toi day."""
+    rows = []
+    for rel in OUTPUTS:
+        data = open(f"{ROOT}/{rel}", "rb").read()
+        rows.append(f"{hashlib.md5(data).hexdigest()}  {len(data):>8}  {rel}")
+    with open(MANIFEST, "w", encoding="utf-8") as f:
+        f.write("\n".join(rows) + "\n")
+    return rows
+
+
 if __name__ == "__main__":
     doc, m, usage = build()
-    for rel in ("index.html", "channel-plan/index.html",
-                "assets/app.css", "assets/app.js"):
-        p = f"{ROOT}/{rel}"
-        print(f"  ghi {rel} ({os.path.getsize(p)} B)")
-    if "--check" in sys.argv and not check(doc, m, usage):
-        sys.exit(1)
+    for rel in OUTPUTS:
+        print(f"  ghi {rel} ({os.path.getsize(f'{ROOT}/{rel}')} B)")
+    if "--check" in sys.argv:
+        if not check(doc, m, usage):
+            sys.exit(1)
+        for row in write_manifest():      # chi ghi so do khi kiem da dat
+            print("  " + row)

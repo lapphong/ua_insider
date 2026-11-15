@@ -10,10 +10,12 @@
 | 1 | `Unit_Economics_Home_Workout_bt2.xlsx` — toàn bộ bài Cấp 2, 1 file duy nhất | ✅ 14 sheet · 0 công thức lỗi · 40/40 số kiểm tra khớp |
 | 2 | `Channel_Plan_Home_Workout.xlsx` — Cấp 3 Channel Plan | ✅ 9 sheet · 2 vùng/sheet · 0 lỗi · 65/65 bảng có dòng `Công thức:` · 0 merge chồng · 0 bước thiếu panel |
 | 3 | `Channel_Plan_Home_Workout.docx` — bản đọc/nộp Cấp 3, sinh từ file xlsx | ✅ 9 câu · 38 bước · 9 kết luận · 159 bảng |
-| 4 | `index.html` — trang tổng: header chung + `<iframe>` nạp bài Cấp 2 | ✅ `713 bytes` md5 `90a0dea4dc5c50d23d11dd3428a1995c` |
-| 5 | `unit-economics/index.html` — nội dung Cấp 2: 12 tab + bảng + panel phải, sinh bằng `build_html.py` | ✅ 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 75 số bấm được · 31 nút `↗` · `398.724 bytes` md5 `a584b6036d9079e5966546f0113329a9` |
-| 6 | `assets/app.css` + `assets/app.js` — CSS/JS dùng chung mọi bài | ✅ css `11.718 bytes` md5 `95dc1207b77db70b03305330c994b0f8` · js `8.422 bytes` md5 `bd9bfa135c1eb4a2301b4a845d0d8757` |
-| 7 | `channel-plan/index.html` — khung trang Cấp 3, `main` để trống | ✅ `635 bytes` md5 `e2bff9d2baf6918c5eb0f07b1f4f353a` |
+| 4 | `index.html` — trang tổng: header chung + `<iframe>` nạp bài Cấp 2 | ✅ chỉ header + iframe |
+| 5 | `unit-economics/index.html` — nội dung Cấp 2: 12 tab + bảng + panel phải, sinh bằng `build_html.py` | ✅ 12 tab · 515 ô nhảy phải · 556 ô có phép tính · 75 số bấm được · 31 nút `↗` |
+| 6 | `assets/app.css` + `assets/app.js` — CSS/JS dùng chung mọi bài | ✅ css + js là file thật, không nhúng vào HTML |
+| 7 | `channel-plan/index.html` — khung trang Cấp 3, `main` để trống | ✅ chỉ header tổng + dropdown |
+
+Số đo file (md5 + bytes): `docs/manifest.txt` — do `make ok` sinh, **không sửa tay**.
 
 Nguồn khoá: `Unit_Economics_Home_Workout_bt2.xlsx` md5 `47b1aad1d8d80906808274bf498add7a` — **không sửa**.
 
@@ -132,10 +134,12 @@ Kiểu trình bày: **5.2 trong `01-bang-tinh.md`** (2 vùng, panel ngang hàng 
 
 ```bash
 cd /Users/buzzlp./Downloads/ua
-/private/var/folders/7h/z4fmlq_j0rj59jbzkbht6y880000gn/T/opencode/venv3/bin/python build_html.py --check
+make ok
 ```
 
-Ghi 5 file: `index.html` (trang tổng, 713 B, chỉ header + iframe), `unit-economics/index.html` (nội dung Cấp 2), `channel-plan/index.html` (khung trống), `assets/app.css`, `assets/app.js`. CSS/JS là file thật trong `assets/`, **không** nhúng lại vào HTML. Không còn `Unit_Economics_Home_Workout.html` — trùng nội dung nên đã xoá.
+`make ok` = `build_html.py --check` (số liệu) + `scripts/browser_check.py` (6 mục layout của `02` §7) + ghi `docs/manifest.txt`. Đạt: `KET QUA: DAT`, `thieu-id-dung=0`, `file=5/5`, `KIEM: 7/7 muc OK`.
+
+Ghi 5 file: `index.html` (trang tổng, chỉ header + iframe), `unit-economics/index.html` (nội dung Cấp 2), `channel-plan/index.html` (khung trống), `assets/app.css`, `assets/app.js`. CSS/JS là file thật trong `assets/`, **không** nhúng lại vào HTML. Không còn `Unit_Economics_Home_Workout.html` — trùng nội dung nên đã xoá.
 
 ### File Cấp 3 (`.xlsx` + `.docx`)
 

@@ -98,7 +98,7 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 
 ## 6. Quy tắc khi sửa bản HTML
 
-1. **Chỉ sinh lại từ script**, không sửa tay `.html`. Sửa `build_html.py` (hoặc `assets/app.css` / `assets/app.js` nếu là CSS/JS) → chạy `--check` → md5 đổi → ghi lại md5 + số byte. **Không** nhúng CSS/JS trở lại vào HTML.
+1. **Chỉ sinh lại từ script**, không sửa tay `.html`. Sửa `build_html.py` (hoặc `assets/app.css` / `assets/app.js` nếu là CSS/JS) → chạy `make ok` → số đo file tự ghi vào `docs/manifest.txt` (**không** chép md5/bytes vào docs nữa). **Không** nhúng CSS/JS trở lại vào HTML.
 2. **Phép tính phải là số thật.** Không in tên hàm Excel, không in tên sheet thô. Không chắc thì **không hiện hộp** (`describe()` trả `""`).
 3. **Ô chỉ chép lại 1 con số → hiện kết quả 1 lần.**
 4. **Mọi ô số phải có `id="c-<sheet>-<addr>"`**, kể cả ô không có dòng ở cột phải — thiếu id là không tô vàng được. `--check` in `thieu-id-dung=0`; khác 0 thì đừng nộp.
@@ -114,29 +114,30 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 14. **Câu "Trả lời ngắn" phải bấm được từng số**: cắt theo `&` cấp ngoài cùng (`top_parts`), đọc số bằng token (`NUM_HEAD`), không dùng `text.find(literal)` (literal `"."` cắt ngang `72.2%`), và literal phải khớp **đúng vị trí** — lệch thì in thường cả ô.
 15. **Số trong nhận định** dùng `ANS_LINK` (khớp **cụm ngữ cảnh**), và mọi nút `↗ tab` lấy `dataset.t` thật của tab. Muốn thêm số bấm được → thêm 1 dòng vào `ANS_LINK` (ngữ cảnh phải **đúng nguyên văn** câu trong ô chữ) rồi chạy lại `--check`.
 
-## 7. Nghiệm thu — `--check` không bắt được 5 lỗi này
+## 7. Nghiệm thu — 7 mục `--check` không bắt được (đã có script)
 
-Phải đo trong Chrome headless (`--headless --disable-gpu --window-size=1440,900`):
+`python3 scripts/browser_check.py` (hoặc `make ok`) chạy 1 lần Chrome headless, in 1 dòng/mục, sai mục nào exit 1:
 
 | Lỗi | Cách bắt |
 |---|---|
-| Các sheet chồng lên nhau (thiếu `.sheet{display:none}`) | `getComputedStyle` từng `.sheet`, chỉ 1 cái `display:block` |
-| Tab tràn ngang | `#work.scrollWidth > clientWidth` trên mọi tab |
+| Các sheet chồng lên nhau (thiếu `.sheet{display:none}`) | `getComputedStyle` từng `.sheet`, đúng 1 cái `display:block` |
+| Tab tràn ngang | `#work.scrollWidth > clientWidth` sau khi bấm **từng** tab |
 | Ô tràn chữ | so `scrollWidth` vs `clientWidth` của từng `td`/`th` |
 | Header lệch canh lề với body | so `textAlign` của `th` với `td` cùng cột, chỉ khi `row.children.length === ths.length` |
 | Panel phải tràn | `#data` scrollWidth vs clientWidth, và `scrollWidth` từng `.pr`/`.fact` |
 | Nút `↗` trỏ sai / thiếu | duyệt **mọi** `#data .use`: `getElementById(data-go)` phải tồn tại, đúng `data-sheet`, và `data-src` của ô đích chứa `D_GIA_DINH:<dòng panel>` |
+| Popover | `data-calc` không chứa tên hàm; bấm 1 ô → hộp hiện + ô nguồn vàng; bấm ra ngoài → tắt hết |
 
-Kiểm thêm popover: `data-calc` **không** được chứa `SUM|IF|ROUND|TEXT|MIN|MAX|ABS|COUNTIF|SUMPRODUCT|_LTV|_Gia_Dinh|!`; bấm 1 ô → hộp hiện + ô nguồn cùng tab vàng; bấm ra ngoài → hộp tắt, hết vàng; nút `↗ tab X` đổi đúng tab.
+Đo tay chỉ khi cần **nhìn** (màu, khoảng cách): Chrome headless `--window-size=1440,300 --screenshot=…`. Cần số chính xác thì dùng probe in text, đừng đọc ảnh.
 
 ## 8. Lệnh build & kiểm
 
 ```bash
 cd /Users/buzzlp./Downloads/ua
-/private/var/folders/7h/z4fmlq_j0rj59jbzkbht6y880000gn/T/opencode/venv3/bin/python build_html.py --check
+make ok
 ```
 
-Phải in `KET QUA: DAT`, **0 ô lỗi**, `thieu-id-dung=0`, `file=5/5`. Build ghi 5 file:
+Phải in `KET QUA: DAT`, **0 ô lỗi**, `thieu-id-dung=0`, `file=5/5`, `KIEM: 7/7 muc OK`. Build ghi 5 file:
 
 | File | Vai trò |
 |---|---|
@@ -147,4 +148,4 @@ Phải in `KET QUA: DAT`, **0 ô lỗi**, `thieu-id-dung=0`, `file=5/5`. Build g
 
 `--check` còn báo `FILE CU CON SOT` nếu còn `Unit_Economics_Home_Workout.html` — xoá đi, đừng để 2 bản trùng nội dung.
 
-Xong thì `md5 -q` các file vừa build và ghi số byte + md5 vào `03-du-an-01-unit-economics.md`.
+Số đo file nằm ở `docs/manifest.txt` (5 dòng: md5 + bytes + đường dẫn). Không chép tay vào docs — lần build sau sẽ lệch.

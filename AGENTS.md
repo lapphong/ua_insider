@@ -18,7 +18,7 @@
 3. Mỗi con số có nhãn 🟩 REAL / 🟨 ASSUMED / 🟥 FAKE (cột `Nguồn/Loại`).
 4. `.html` / `.docx` là **bản sinh ra từ script** — không sửa tay, không được lệch số với `.xlsx`.
 5. File đã chốt **không sửa** khi làm bản đọc; mỗi bài là file mới.
-6. Nói "xong" chỉ sau khi **chạy máy kiểm** và báo số đo thật (0 lỗi, n/n khớp, md5, số byte).
+6. Nói "xong" chỉ sau khi **chạy `make ok`** và báo số đo thật; số đo file lấy từ `docs/manifest.txt`, không chép tay.
 7. Người học đã bác hướng nào thì không tự thêm lại; mục ghi **CHỐT** thì làm đúng bảng đó.
 
 ## 3. Bản đồ tài liệu
@@ -38,9 +38,11 @@
 | `Unit_Economics_Home_Workout_bt2.xlsx` | Bài Cấp 2, nguồn khoá (md5 `47b1aad1…`) | ✅ 14 sheet · 0 lỗi · 40/40 khớp |
 | `Channel_Plan_Home_Workout.xlsx` | Bài Cấp 3 | ✅ 9 sheet · 65/65 dòng công thức · 0 lỗi |
 | `Channel_Plan_Home_Workout.docx` | Bản đọc Cấp 3 (sinh từ xlsx) | ✅ 9 câu · 38 bước · 159 bảng |
-| `index.html` | Trang tổng: header chung (`HOME WORKOUT` + dropdown) + `<iframe>` nạp bài Cấp 2 | ✅ 713 bytes · md5 `90a0dea4…` |
-| `unit-economics/index.html` | Nội dung Cấp 2 (sinh bằng `build_html.py`), dùng chung `assets/app.css` + `assets/app.js` | ✅ 12 tab · 556 hộp phép tính · 75 số bấm được · 398.724 bytes · md5 `a584b603…` |
-| `channel-plan/index.html` | Khung trang Cấp 3 (trống nội dung, chờ bài sau) | ✅ 635 bytes · chỉ header tổng + dropdown chọn bài |
+| `index.html` | Trang tổng: header chung (`HOME WORKOUT` + dropdown) + `<iframe>` nạp bài Cấp 2 | ✅ chưa tới 1 KB |
+| `unit-economics/index.html` | Nội dung Cấp 2 (sinh bằng `build_html.py`), dùng chung `assets/app.css` + `assets/app.js` | ✅ 12 tab · 556 hộp phép tính · 75 số bấm được |
+| `channel-plan/index.html` | Khung trang Cấp 3 (trống nội dung, chờ bài sau) | ✅ chỉ header tổng + dropdown chọn bài |
+
+Số đo file (md5 + bytes) **không chép tay**: `make ok` ghi ra `docs/manifest.txt`.
 
 Muốn đổi số: sửa `D_Gia_Dinh` trong `.xlsx` rồi sinh lại — **không** sửa tay `.html`.
 Số chốt + quyết định chi tiết: `docs/03-du-an-01-unit-economics.md`.
@@ -49,9 +51,10 @@ Số chốt + quyết định chi tiết: `docs/03-du-an-01-unit-economics.md`.
 
 ```bash
 cd /Users/buzzlp./Downloads/ua
-# bản đọc Cấp 2 (.html) — phải in KET QUA: DAT, thieu-id-dung=0
-/private/var/folders/7h/z4fmlq_j0rj59jbzkbht6y880000gn/T/opencode/venv3/bin/python build_html.py --check
+make ok     # build + kiểm số liệu + ghi docs/manifest.txt + kiểm 7 mục layout
 ```
+
+Đạt khi in `KET QUA: DAT`, `thieu-id-dung=0`, `file=5/5`, `KIEM: 7/7 muc OK`. Chạy lẻ: `python3 scripts/browser_check.py`.
 
 Build lại file Cấp 3 (script q1–q9 + `fix.py` + `makedoc.py`) và cách kiểm `.xlsx`: `docs/03-du-an-01-unit-economics.md` §7.
 
