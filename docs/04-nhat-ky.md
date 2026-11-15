@@ -60,3 +60,4 @@
 3. **JS nhận id theo chữ thường, Python sinh `data-uses` theo chữ HOA** — luôn so sánh case-insensitive rồi lấy `dataset.t` thật.
 4. **Memo rỗng = bug im lặng.** Không bao giờ cache kết quả rỗng trong đệ quy.
 5. **Số thô trong bảng đọc như lỗi.** `0,00` cạnh `ĐẠT` từng bị hiểu là "doanh thu bằng 0" — luôn thêm đơn vị/nhãn.
+- **2026-11-15 (dọn rác git + kiểm GitHub Pages):** Giả lập Pages bằng cách phục vụ repo trong thư mục con `/ua_insider/` → 5/5 URL trả 200, iframe nạp đúng 12 tab, CSS/JS áp, `duong-dan-sai=0` khi so chữ hoa/thường từng phần đường dẫn. Kết luận: dùng Pages với **branch `main` + folder `/ (root)`**, không cần `.nojekyll` (không có file/thư mục bắt đầu bằng `_`). Nhân đó bỏ rác khỏi git: thêm `.gitignore` (`.DS_Store`, `__pycache__/`, `*.pyc`) và `git rm --cached` 2 file đang bị theo dõi. `make ok`: **KET QUA: DAT**, `KIEM: 7/7 muc OK`, manifest không đổi.
