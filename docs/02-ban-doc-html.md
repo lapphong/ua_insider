@@ -1,14 +1,19 @@
 # Bản đọc `.html` — cách dựng và các mục đã CHỐT
 
-> Áp dụng khi làm/sửa **trang đọc** của một bài tập. File hiện tại:
-> `Unit_Economics_Home_Workout.html`, sinh từ `Unit_Economics_Home_Workout_bt2.xlsx` bằng `build_html.py`.
+> Áp dụng khi làm/sửa **trang đọc** của một bài tập. Hiện tại:
+> `index.html` = trang tổng (header chung + iframe) nạp `unit-economics/index.html` (Cấp 2, sinh từ
+> `Unit_Economics_Home_Workout_bt2.xlsx` bằng `build_html.py`); `channel-plan/index.html` (Cấp 3) là khung trống;
+> CSS/JS dùng chung ở `assets/app.css` + `assets/app.js`.
 >
 > **Luật số 1: không sửa tay `.html`.** Sửa script → sinh lại → ghi md5 + số byte.
 > **Luật số 2: không sửa `.xlsx` gốc** khi làm bản đọc.
 
 ## 1. Mục đích & sản phẩm
 
-- 1 file `.html` duy nhất, **không cần internet**, double-click là mở.
+- **`index.html` = trang tổng**: chỉ có header chung (`HOME WORKOUT` + dropdown chọn bài) và 1 `<iframe>` nạp trang bài. Mặc định nạp `unit-economics/index.html`.
+- **Mỗi bài = 1 thư mục có `index.html` riêng** (`unit-economics/`, `channel-plan/`), bên trong chứa thanh tab + nội dung. CSS/JS nằm ở `assets/` dùng chung. **Không cần internet**, double-click `index.html` là mở.
+- Vì trang bài nằm trong iframe, trang tổng **không chép nội dung** bài → sửa 1 chỗ, không có 2 bản lệch số. Đây là lý do phải dùng iframe: file tĩnh không tự hiển thị nội dung file khác (`fetch` chết trên `file://`).
+- Mọi đường dẫn là **tương đối và trỏ thẳng file** (`assets/app.css`, `../index.html`, `unit-economics/index.html`) để chạy được cả `file://` lẫn GitHub Pages. **Không** trỏ vào thư mục (`../channel-plan/`) — mở bằng `file://` sẽ ra danh sách thư mục, không tự nạp `index.html`. **Không** dùng `fetch()` để nạp nội dung — `fetch` chết trên `file://`.
 - Số tính sẵn lúc build bằng thư viện `formulas` rồi nhúng vào HTML. **Không** nhúng engine công thức vào trình duyệt.
 - Muốn đổi giả định: sửa sheet `D_Gia_Dinh` trong `.xlsx` → chạy lại 1 lệnh.
 - Trang trả lời 1 câu hỏi của người học: "số này ở đâu ra, và nó được tính thế nào" — không phải mở Excel.
@@ -18,7 +23,8 @@
 | Hạng mục | Chốt |
 |---|---|
 | Chia đôi | **6.5 : 3.5** (đo thật 936px : 504px ở 1440) — trái = bài làm, phải 35% = toàn bộ `C_Du_Lieu_That` + `D_Gia_Dinh`, luôn hiện, cuộn riêng |
-| Tab | thứ tự file gốc: `Hướng dẫn` → các câu → `Tóm tắt` → `Kết luận` → `Nguồn`. Đổi tab ghi vào `#hash` để refresh vẫn đúng chỗ |
+| Tab | thứ tự file gốc: `Hướng dẫn` → các câu → `Tóm tắt` → `Kết luận` → `Nguồn`. Nằm **trong trang bài** (`unit-economics/index.html`), không nằm ở header tổng. Đổi tab ghi `#hash` của **iframe**; mở thẳng trang bài thì refresh vẫn đúng tab, còn refresh trang tổng thì về tab `Hướng dẫn` |
+| Chọn bài | Dropdown **góc phải header tổng** (`Unit Economics` / `Channel Plan`) → đổi trang bằng `location.href`, không nạp nội dung bằng `fetch`. Mặc định `index.html` nạp `unit-economics/index.html` qua iframe. Bài chưa làm (`channel-plan/index.html`) chỉ có header tổng, `main` rỗng. Dropdown hiện **đúng bài đang mở** (`selected`) |
 | Màn hẹp <1100px | cột phải thành drawer, nút `Dữ liệu ⇄`, `Esc` để đóng |
 | Số | tính sẵn lúc build, nhúng thẳng vào HTML |
 
@@ -92,7 +98,7 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 
 ## 6. Quy tắc khi sửa bản HTML
 
-1. **Chỉ sinh lại từ script**, không sửa tay `.html`. Sửa `build_html.py` (hoặc giả định trong `D_Gia_Dinh`) → chạy `--check` → md5 đổi → ghi lại md5 + số byte.
+1. **Chỉ sinh lại từ script**, không sửa tay `.html`. Sửa `build_html.py` (hoặc `assets/app.css` / `assets/app.js` nếu là CSS/JS) → chạy `--check` → md5 đổi → ghi lại md5 + số byte. **Không** nhúng CSS/JS trở lại vào HTML.
 2. **Phép tính phải là số thật.** Không in tên hàm Excel, không in tên sheet thô. Không chắc thì **không hiện hộp** (`describe()` trả `""`).
 3. **Ô chỉ chép lại 1 con số → hiện kết quả 1 lần.**
 4. **Mọi ô số phải có `id="c-<sheet>-<addr>"`**, kể cả ô không có dòng ở cột phải — thiếu id là không tô vàng được. `--check` in `thieu-id-dung=0`; khác 0 thì đừng nộp.
@@ -130,4 +136,15 @@ cd /Users/buzzlp./Downloads/ua
 /private/var/folders/7h/z4fmlq_j0rj59jbzkbht6y880000gn/T/opencode/venv3/bin/python build_html.py --check
 ```
 
-Phải in `KET QUA: DAT`, **0 ô lỗi**, `thieu-id-dung=0`. Xong thì `md5 -q` file html và ghi số byte + md5 vào `03-du-an-01-unit-economics.md`.
+Phải in `KET QUA: DAT`, **0 ô lỗi**, `thieu-id-dung=0`, `file=5/5`. Build ghi 5 file:
+
+| File | Vai trò |
+|---|---|
+| `index.html` | trang tổng: header chung + `<iframe>` nạp bài Cấp 2 |
+| `unit-economics/index.html` | nội dung Cấp 2: thanh tab + bảng + panel phải |
+| `assets/app.css`, `assets/app.js` | dùng chung mọi bài |
+| `channel-plan/index.html` | khung Cấp 3, `main` rỗng |
+
+`--check` còn báo `FILE CU CON SOT` nếu còn `Unit_Economics_Home_Workout.html` — xoá đi, đừng để 2 bản trùng nội dung.
+
+Xong thì `md5 -q` các file vừa build và ghi số byte + md5 vào `03-du-an-01-unit-economics.md`.

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Sinh Unit_Economics_Home_Workout.html tu file xlsx (KHONG sua file goc).
+"""Sinh trang tong (index.html) + trang Channel Plan tu file xlsx (KHONG sua file goc).
 
+Ra: index.html (mac dinh = bai Cấp 2), channel-plan/index.html,
+    dung chung assets/app.css, assets/app.js
 Chay:  ./venv3/bin/python build_html.py
 Kiem:  ./venv3/bin/python build_html.py --check
 """
 import html
+import os
 import re
 import sys
 import warnings
@@ -14,7 +17,10 @@ import openpyxl
 warnings.filterwarnings("ignore")
 
 SRC = "/Users/buzzlp./Downloads/ua/Unit_Economics_Home_Workout_bt2.xlsx"
-OUT = "/Users/buzzlp./Downloads/ua/Unit_Economics_Home_Workout.html"
+ROOT = "/Users/buzzlp./Downloads/ua"
+# Trang tổng (index.html) mặc định là bài Cấp 2; dropdown đổi sang bài khác.
+# Đường dẫn tính từ gốc repo. Thêm bài mới = thêm 1 dòng.
+PAGES = [("index.html", "Unit Economics"), ("channel-plan/index.html", "Channel Plan")]
 
 DATA_SHEETS = ("C_DU_LIEU_THAT", "D_GIA_DINH")
 WORK_SHEETS = [
@@ -1309,329 +1315,49 @@ def render_wide(m, ws, up, sec, usage):
 
 
 # ------------------------------------------------------------------ vo trang
-CSS = """
-*{box-sizing:border-box}
-:root{--navy:#1F3864;--blue:#DEEAF6;--green:#E2EFDA;--gray:#F2F2F2;--line:#e6eaf0;--ink:#1c2430}
-html,body{height:100%}
-body{margin:0;display:flex;flex-direction:column;overflow:hidden;color:var(--ink);
-font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#fff}
+def picker(current, up):
+    opts = "".join(
+        f'<option value="{up}{k}"{" selected" if k == current else ""}>{esc(v)}</option>'
+        for k, v in PAGES)
+    return ('<div class="picker"><select aria-label="Chọn bài" '
+            f'onchange="location.href=this.value">{opts}</select></div>')
 
-.top{display:flex;align-items:center;gap:14px;padding:8px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
-.brand{font-weight:700;color:var(--navy);font-size:12.5px;letter-spacing:.06em;white-space:nowrap}
-.brand span{font-weight:400;color:#8a94a3;letter-spacing:0;margin-left:6px}
-.tabs{display:flex;gap:4px;overflow-x:auto;flex:1 1 auto}
-.tab{border:1px solid var(--line);background:#f7f9fc;color:#33415a;padding:6px 10px;border-radius:7px;
-font:600 12.5px/1 inherit;cursor:pointer;white-space:nowrap}
-.tab:hover{border-color:#c9d6e8}
-.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 
-.split{display:flex;flex:1 1 auto;min-height:0}
-#work{flex:1 1 auto;min-width:0;overflow-y:auto;padding:14px 18px 70px}
-#data{flex:0 0 35%;max-width:35%;overflow-y:auto;border-left:1px solid var(--line);background:#fbfcfe}
-
-/* bang bai lam: cot tu co theo noi dung, khong ep theo width cua Excel */
-.sheet{display:none}
-.sheet.on{display:block}
-table.grid{width:100%;border-collapse:collapse;font-size:12.5px}
-/* bang 2-3 cot: rong dung bang chu, khong keo het be ngang (cot nhan se hu vo ra) */
-table.grid.narrow{width:auto;max-width:100%}
-/* bang nho: cho thoang 2 ben, van om theo chu chu khong keo het 100% */
-table.grid.narrow td,table.grid.narrow th{padding:5px 15px}
-.grid td,.grid th{border-bottom:1px solid #eef1f5;padding:5px 9px;vertical-align:middle;text-align:left}
-.grid th{text-align:left}
-.grid th.n{text-align:center}
-.grid td.n{text-align:center;font-variant-numeric:tabular-nums}
-.grid td.n:first-child{text-align:left}
-.grid.fixed{table-layout:fixed}
-.grid.fixed td,.grid.fixed th{overflow-wrap:normal}
-.grid .r-title td,.grid .r-sec td,.grid .r-ans td,.grid .r-fml td,.grid .r-ref td,.grid .r-note td{white-space:normal}
-.grid.wide{font-size:11.5px}
-.grid.wide td,.grid.wide th{padding:5px 6px}
-.r-title td{background:var(--navy);color:#fff;font-weight:700;font-size:16px;padding:11px 12px;border:0;line-height:1.35}
-.r-sec td{background:var(--blue);color:var(--navy);font-weight:700;font-size:13px;padding:7px 10px}
-.r-ans td{background:var(--green);color:var(--navy);font-weight:600;padding:9px 11px;line-height:1.6}
-.r-fml td{background:var(--gray);color:#595959;font-size:11.5px;padding:5px 10px}
-.r-ref td{background:#F1F7EF;color:#3f6b4e;font-size:11.5px;padding:5px 10px}
-.r-note td{padding:5px 10px;color:#4a5768}
-.r-head th{background:var(--navy);color:#fff;font-weight:600;font-size:11.5px;vertical-align:bottom;padding:7px 8px;text-align:left}
-.r-head th.n{text-align:center}
-.tot{background:#D9D9D9!important;font-weight:700}
-.key{background:#FFF2CC!important}
-.inp{color:#0000CC}
-.rf{color:#007A33}
-.calc{cursor:pointer}
-.calc:hover{background:#fbf7ea}
-.src{cursor:pointer}
-.src:hover{background:#fff3cd;box-shadow:inset 0 0 0 2px #ffe08a}
-.src.on{background:#ffe8a3;box-shadow:inset 0 0 0 2px #f0a500}
-.self{cursor:help;border-bottom:1px dotted #c9ab00}
-td.uses{cursor:pointer}
-td.uses:hover{background:#fbf7ea}
-.num{cursor:pointer;border-bottom:1px dotted #4a7fb5;padding-bottom:1px}
-.num:hover{background:#fff3cd;box-shadow:0 0 0 2px #fff3cd}
-.info{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;
-background:#8fa8cc;color:#fff;font:700 9px/1 Georgia,serif;margin-left:4px;cursor:help;vertical-align:1px;flex:0 0 auto}
-.r-head th .info{background:#5b7bab;color:#fff}
-
-#tip{position:fixed;z-index:99;max-width:300px;background:#12233c;color:#eaf1fb;padding:9px 11px;border-radius:8px;
-font-size:12px;line-height:1.5;box-shadow:0 12px 30px rgba(15,32,58,.28);opacity:0;pointer-events:none;transition:opacity .12s}
-#tip.on{opacity:1}
-#tip b{color:#fff;font-size:12.5px}
-#tip i{color:#9fc0ea;font-style:normal;font-size:11px}
-#calc{position:fixed;z-index:100;display:none;max-width:330px;background:#0f2a4a;color:#eaf1fb;padding:9px 11px;
-border-radius:8px;font-size:12px;line-height:1.5;box-shadow:0 12px 30px rgba(15,32,58,.3)}
-#calc.on{display:block}
-#calc .ch{font-size:10.5px;color:#9fc0ea;margin-bottom:3px}
-#calc .ch b{color:#fff;font-size:12px}
-#calc .cx{color:#dbe7f6;font-variant-numeric:tabular-nums;overflow-wrap:break-word}
-#calc .cd{margin-top:2px;font-weight:700;color:#ffe08a;font-variant-numeric:tabular-nums}
-#calc .use-note{margin-top:5px;font-size:10.5px;color:#9fc0ea}
-#calc .cg{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-#calc .gotab{border:0;border-radius:5px;background:#1d4b7f;color:#cfe3ff;font:600 11px/1 inherit;
-padding:5px 7px;cursor:pointer}
-#calc .gotab:hover{background:#2b6aad;color:#fff}
-/* o duoc dung boi o dang bam (cung tab) + dong nguon o cot phai: vang giu nguyen */
-.use-on{background:#fff3cd!important;box-shadow:inset 0 0 0 2px #ffd75e}
-.hl{background:#fff3cd!important;box-shadow:inset 3px 0 0 #f0a500}
-#toast{position:fixed;left:16px;bottom:16px;z-index:98;max-width:46%;background:#12233c;color:#fff;font-size:12px;
-padding:8px 12px;border-radius:8px;opacity:0;transform:translateY(6px);transition:.18s;pointer-events:none}
-#toast.on{opacity:1;transform:none}
-
-/* cot phai */
-.dhead{position:sticky;top:0;z-index:5;background:#fbfcfe;border-bottom:1px solid var(--line);padding:8px 10px}
-.dtit{font-weight:700;color:var(--navy);font-size:12px;letter-spacing:.04em;display:flex;align-items:baseline;gap:6px}
-.dtit span{font-weight:400;color:#93a0b3;letter-spacing:0;font-size:10.5px}
-.dlegend{position:absolute;top:7px;right:10px;display:flex;gap:8px;font-size:9.5px;color:#4a5768}
-.dlegend .lg{white-space:nowrap;cursor:help}
-.dnote{font-size:10.5px;color:#7c8798;margin-top:2px;min-height:15px}
-.dnote:empty{min-height:0;margin:0}
-.dbody{padding:2px 14px 70px 10px}
-.pblk{display:flex;align-items:baseline;gap:8px;margin:10px 0 6px;background:var(--navy);color:#fff;
-font-size:12px;font-weight:700;padding:7px 10px;border-radius:6px}
-.pblk span{font-weight:400;font-size:10.5px;color:#a9c0e0}
-.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e7edf5;border:1px solid #e7edf5;border-radius:6px;overflow:hidden}
-.fact{background:#fff;padding:5px 8px;scroll-margin:70px}
-.fact.full{grid-column:1/-1}
-.fk{font-size:10.5px;color:#8492a6;display:flex;align-items:center}
-.fv{font-size:12.5px;font-weight:600;color:#1c2b42;overflow-wrap:break-word}
-.fact.two{background:#fff;padding:4px 8px}
-.frow{display:flex;align-items:baseline;gap:5px;font-size:11.5px;padding:1px 0}
-.frow span{color:#8492a6}
-.frow b{font-weight:600;color:#1c2b42}
-.storelink{color:#1a63c9;text-decoration:underline;font-weight:600}
-.ps{margin:0 0 2px}
-.ps h4{display:flex;align-items:center;gap:2px;margin:10px 0 1px;font-size:11.5px;color:var(--navy);
-padding-bottom:3px;border-bottom:2px solid var(--blue)}
-.pr{display:grid;grid-template-columns:minmax(0,1fr) auto 16px 16px;align-items:baseline;gap:0 6px;
-padding:3px 6px;border-bottom:1px solid #f1f4f8;font-size:12px;scroll-margin:70px}
-.pr .k{min-width:0;color:#2a3a52;display:flex;align-items:center;flex-wrap:wrap}
-.pr .v{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;overflow-wrap:break-word}
-.pr .lbcell{grid-column:4}            /* dong nao khong co nut van giu dung cot mau */
-.lbcell{font-size:9px;line-height:1;text-align:center}
-.lb{display:inline-block;width:16px;text-align:center}
-.pr .info{width:12px;height:12px;font-size:8px}
-.use{width:16px;text-align:center;border:0;background:none;color:#c3cddb;font-size:11px;line-height:1;padding:0 1px;cursor:pointer}
-.pr:hover .use,.fact:hover .use{color:#1a63c9}
-.pnote{font-size:10.5px;color:#7b8697;padding:5px 6px 0;line-height:1.5}
-.pnote b{color:#3f5573}
-.phow{margin:6px 6px 0}
-.phow>summary{cursor:pointer;font-size:10.5px;color:#1a63c9}
-.phow ol{margin:4px 0 0;padding-left:16px;font-size:10.5px;color:#7b8697;line-height:1.5}
-table.mini{width:100%;margin:4px 0 6px;border-collapse:collapse;font-size:11px;table-layout:auto}
-table.mini th,table.mini td{border-bottom:1px solid #eef1f5;padding:3px 6px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
-table.mini tr:first-child th{background:#eef3fa;color:#2a3a52;text-align:center;font-weight:600;white-space:normal}
-table.mini th[scope=row]{text-align:left;font-weight:400;color:#2a3a52;white-space:normal;padding-left:6px}
-table.mini .lbh,table.mini .lbcell{width:22px;padding:3px 6px 3px 0;text-align:center}
-
-.hit{animation:hit 2.1s ease-out}
-@keyframes hit{0%{background:#ffd75e;box-shadow:inset 3px 0 0 #f0a500}
-70%{background:#ffeeb8}100%{background:rgba(255,238,184,0)}}
-
-.dt{display:none}
-@media(max-width:1100px){
-  #work{padding:10px 10px 70px}
-  #data{position:fixed;inset:0;max-width:none;flex:none;z-index:60;display:none;border:0}
-  body.datopen #data{display:block}
-  .dt{display:inline-block;border:1px solid var(--line);background:#f7f9fc;color:var(--navy);
-  font:600 12px/1 inherit;padding:7px 10px;border-radius:7px;cursor:pointer}
-}
-"""
-
-JS = """
-const tabs=[...document.querySelectorAll('.tab')],sheets=[...document.querySelectorAll('.sheet')];
-const work=document.getElementById('work'),data=document.getElementById('data');
-const dnote=document.getElementById('dnote'),HINT=dnote.innerHTML;
-function show(id){
-  sheets.forEach(s=>s.classList.toggle('on',s.id==='s-'+id));
-  tabs.forEach(t=>t.classList.toggle('on',t.dataset.t===id));
-  work.scrollTop=0;
-  try{history.replaceState(null,'','#s-'+id)}catch(e){}
-}
-tabs.forEach(t=>t.onclick=()=>show(t.dataset.t));
-let start=(location.hash||'').replace(/^#s/,'');
-if(!sheets.some(s=>s.id==='s-'+start))start=sheets[0].id.slice(2);
-show(start);
-
-const tip=document.getElementById('tip');
-function place(x,y){const r=tip.getBoundingClientRect();let L=x+14,T=y+14;
- if(L+r.width>innerWidth-8)L=Math.max(8,x-r.width-14);
- if(T+r.height>innerHeight-8)T=Math.max(8,y-r.height-14);
- tip.style.left=L+'px';tip.style.top=T+'px';}
-function tipOn(el,x,y){tip.innerHTML=el.dataset.tip;tip.classList.add('on');place(x,y);}
-document.addEventListener('mouseover',e=>{const i=e.target.closest('.info');if(i)tipOn(i,e.clientX,e.clientY);});
-document.addEventListener('mousemove',e=>{if(tip.classList.contains('on'))place(e.clientX,e.clientY);});
-document.addEventListener('mouseout',e=>{if(e.target.closest('.info'))tip.classList.remove('on');});
-document.addEventListener('focusin',e=>{const i=e.target.closest('.info');
- if(i){const r=i.getBoundingClientRect();tipOn(i,r.left,r.bottom);}});
-document.addEventListener('focusout',e=>{if(e.target.closest('.info'))tip.classList.remove('on');});
-
-const toast=document.getElementById('toast');let tt;
-function say(m){toast.textContent=m;toast.classList.add('on');clearTimeout(tt);
- tt=setTimeout(()=>toast.classList.remove('on'),2600);}
-/* to vang giu nguyen cho tới khi bam ra ngoai */
-function unmark(){
-  document.querySelectorAll('.src.on').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.use-on,.hl').forEach(x=>x.classList.remove('use-on','hl'));
-}
-
-/* bam vao so -> hop nho: phep tinh bang so that + o nao duoc dung. Bam ra ngoai -> tat. */
-const calc=document.getElementById('calc');let cur=null,shownAt=0;
-function calcHide(){calc.classList.remove('on');cur=null;}
-function calcPlace(){
-  if(!cur)return;
-  const r=cur.getBoundingClientRect(),b=work.getBoundingClientRect();
-  /* o bi cuon khuat -> tat (bo qua 0,7s dau: luc do con dang cuon chuong trinh) */
-  if((r.bottom<b.top+4||r.top>b.bottom-4)&&Date.now()-shownAt>700){calc.classList.remove('on');return;}
-  const cr=calc.getBoundingClientRect();
-  let L=r.left,T=r.bottom+6;
-  if(L+cr.width>b.right-8)L=b.right-8-cr.width;
-  if(T+cr.height>b.bottom-8)T=r.top-6-cr.height;      /* khong du cho duoi -> len tren */
-  calc.style.left=Math.max(b.left+6,L)+'px';
-  calc.style.top=Math.max(b.top+6,T)+'px';             /* ghim trong khung bai lam */
-}
-function markUses(td){
-  const here=document.querySelector('.sheet.on').id.slice(2),chips=[];
-  let same=false;
-  (td.dataset.uses||'').split(',').filter(Boolean).forEach(k=>{
-    const i=k.lastIndexOf(':'),sh=k.slice(0,i),ad=k.slice(i+1);
-    const el=document.getElementById('c-'+here+'-'+ad);
-    if(sh===here.toUpperCase()){
-      if(el){el.classList.add('use-on');same=true;}
-    }else{
-      const tab=[...document.querySelectorAll('.tab')].find(t=>t.dataset.t.toUpperCase()===sh);
-      chips.push([tab?tab.dataset.t:sh,ad]);
-    }
-  });
-  return {chips,same};
-}
-function calcShow(td){
-  calc.textContent='';
-  const h=document.createElement('div');h.className='ch';
-  const b=document.createElement('b');b.textContent=td.dataset.hd||'Số';
-  h.append(b);
-  if(td.dataset.lab)h.append(document.createTextNode(' · '+td.dataset.lab));
-  calc.append(h);
-  const e=document.createElement('div');e.className='cx';e.textContent=td.dataset.calc;
-  /* o chi chep lai 1 con so (khong co phep tinh) thi chi hien ket qua 1 lan */
-  const norm=t=>(t||'').replace(/\s/g,'');
-  if(td.dataset.calc&&norm(td.dataset.calc)!==norm(td.dataset.res))calc.append(e);
-  if(td.dataset.res){
-    const d=document.createElement('div');d.className='cd';d.textContent='= '+td.dataset.res;calc.append(d);
-  }
-  const {chips,same}=markUses(td);
-  if(same){
-    const s=document.createElement('div');s.className='use-note';s.textContent='ô vàng = số lấy vào phép tính này';
-    calc.append(s);
-  }
-  if(chips.length){
-    const row=document.createElement('div');row.className='cg';
-    chips.forEach(([sh,ad])=>{
-      /* data-uses ghi ten sheet bang CHU HOA (2.6_PLTV) con id tren trang la chu thuong
-         (2.6_pLTV) -> phai lay dung data-t cua tab, khong ghep thang chuoi */
-      const tab=[...document.querySelectorAll('.tab')].find(t=>t.dataset.t.toUpperCase()===sh.toUpperCase());
-      const key=tab?tab.dataset.t:sh;
-      const btn=document.createElement('button');btn.className='gotab';
-      btn.dataset.sheet=key;btn.dataset.cell='c-'+key+'-'+ad;
-      btn.textContent='↗ tab '+(tab?tab.textContent:sh);
-      row.append(btn);
-    });
-    calc.append(row);
-  }
-  calc.classList.add('on');cur=td;shownAt=Date.now();calcPlace();
-}
-work.addEventListener('scroll',calcPlace);   /* cuon thi hop nho di theo o, khuat han thi tat */
-
-document.addEventListener('click',e=>{
-  const go=e.target.closest('.gotab');
-  if(go){                                  /* nhay sang tab dang chua so do */
-    unmark();
-    show(go.dataset.sheet);
-    const el=document.getElementById(go.dataset.cell);
-    calcHide();
-    if(el){el.classList.add('use-on');el.scrollIntoView({block:'center'});}
-    return;
-  }
-  if(e.target.closest('#calc'))return;      /* bam trong hop thi khong tat */
-  const cd=e.target.closest('td.calc'),s=e.target.closest('.src'),nu=e.target.closest('.num');
-  const tg=e.target.closest('td[data-uses]');
-  if(!cd&&!s&&!nu&&!tg){unmark();calcHide();dnote.innerHTML=HINT;}
-  else{
-    unmark();
-    /* o co so cung tab -> to vang so do (doc ra ket qua ngay tren bang);
-       chi to cot phai khi khong co o nao cung tab (so phai lay tu bang gia dinh) */
-    const here=document.querySelector('.sheet.on').id.slice(2).toUpperCase();
-    const same=!!(tg&&(tg.dataset.uses||'').split(',')
-                   .some(k=>k.slice(0,k.lastIndexOf(':')).toUpperCase()===here));
-    if(s&&!same&&!s.dataset.nop){
-      s.classList.add('on');
-      let first=null,n=0;
-      s.dataset.src.split(',').filter(Boolean).forEach(k=>{
-        const p=k.split(':'),el=document.getElementById('p-'+p[0]+'-'+p[1]);
-        if(!el)return;
-        el.classList.add('hl');n++;if(!first)first=el;      /* giu vang, khong fad */
-      });
-      dnote.innerHTML=n?('← <b>'+s.dataset.lab+'</b> · '+n+' ô nguồn bên dưới'):HINT;
-      if(first)first.scrollIntoView({block:'center'});
-      if(innerWidth<=1100)document.body.classList.add('datopen');
-    }else if(!cd&&!nu){    /* co so cung tab: to vang cac o do */
-      markUses(tg);
-    }
-    if(cd||nu)calcShow(cd||nu);else calcHide();
-  }
-  const g=e.target.closest('[data-go]');
-  if(g){show(g.dataset.sheet);
-    const el=document.getElementById(g.dataset.go);
-    if(el){el.classList.add('hl');el.scrollIntoView({block:'center'});}
-    return;
-  }
-  const slf=e.target.closest('.self');
-  if(slf)say('“'+slf.dataset.self+'” là ô nhập tay ngay trong bảng này · 🟨 ASSUMED');
-});
-document.getElementById('dtoggle').onclick=()=>document.body.classList.toggle('datopen');
-document.addEventListener('keydown',e=>{
-  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&
-     (e.target.classList.contains('calc')||e.target.classList.contains('num'))){
-    e.preventDefault();unmark();calcShow(e.target);return;}
-  if(e.key==='Escape'){document.body.classList.remove('datopen');tip.classList.remove('on');
-    calcHide();unmark();}});
-"""
-
-HEAD = """<!doctype html>
+# Trang tong: header chung + iframe nap trang bai. Sua noi dung = sua trang bai, khong dung vao day.
+SHELL = """<!doctype html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Unit Economics · Home Workout — Cấp 2</title>
-<style>%s</style>
+<title>%(title)s</title>
+<link rel="stylesheet" href="%(css)s">
 </head>
 <body>
 <header class="top">
-  <div class="brand">UNIT ECONOMICS<span>Home Workout · Cấp 2</span></div>
-  <nav class="tabs" id="tabs">%s</nav>
-  <button class="dt" id="dtoggle">Dữ liệu ⇄</button>
+  <div class="brand">HOME WORKOUT<span>%(sub)s</span></div>
+  %(picker)s
 </header>
+<main class="frame">%(main)s</main>
+</body>
+</html>
+"""
+
+# Trang bai (nam trong iframe): khong co header tong, chi thanh tab + noi dung
+PAGE = """<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Unit Economics · Cấp 2</title>
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body>
+<div class="pagebar">
+  <nav class="tabs" id="tabs">%(tabs)s</nav>
+  <button class="dt" id="dtoggle">Dữ liệu ⇄</button>
+</div>
 <main class="split">
-  <section id="work">%s</section>
+  <section id="work">%(sheets)s</section>
   <aside id="data">
     <div class="dhead">
       <div class="dtit">📱 APP &amp; GIẢ ĐỊNH</div>
@@ -1642,16 +1368,24 @@ HEAD = """<!doctype html>
       </div>
       <div class="dnote" id="dnote"></div>
     </div>
-    <div class="dbody">%s</div>
+    <div class="dbody">%(panel)s</div>
   </aside>
 </main>
 <div id="tip"></div>
 <div id="calc"></div>
 <div id="toast"></div>
-<script>%s</script>
+<script src="../assets/app.js"></script>
 </body>
 </html>
 """
+
+
+def put(rel, text):
+    path = f"{ROOT}/{rel}"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+    return path
 
 
 def build():
@@ -1660,13 +1394,33 @@ def build():
     sheets_html = "\n".join(render_sheet(m, n, usage) for n, _ in WORK_SHEETS)
     panel = build_panel(m, usage)
     tabs = "".join(f'<button class="tab" data-t="{n}">{esc(s)}</button>' for n, s in WORK_SHEETS)
-    doc = HEAD % (CSS, tabs, sheets_html, panel, JS)
-    open(OUT, "w", encoding="utf-8").write(doc)
+    doc = PAGE % {"tabs": tabs, "sheets": sheets_html, "panel": panel}
+    put("unit-economics/index.html", doc)
+    frame = '<iframe src="unit-economics/index.html" title="Unit Economics · Cấp 2"></iframe>'
+    put("index.html", SHELL % {
+        "title": "Home Workout — Unit Economics · Cấp 2", "sub": "Unit Economics · Cấp 2",
+        "css": "assets/app.css", "picker": picker("index.html", ""), "main": frame})
+    put("channel-plan/index.html", SHELL % {
+        "title": "Home Workout — Channel Plan · Cấp 3", "sub": "Channel Plan · Cấp 3",
+        "css": "../assets/app.css", "picker": picker("channel-plan/index.html", "../"), "main": ""})
     return doc, m, usage
 
 
 def check(doc, m, usage):
     ok = True
+    css = open(f"{ROOT}/assets/app.css", encoding="utf-8").read()
+    js = open(f"{ROOT}/assets/app.js", encoding="utf-8").read()
+    need = ["assets/app.css", "assets/app.js", "index.html",
+            "unit-economics/index.html", "channel-plan/index.html"]
+    miss_files = [f for f in need if not os.path.exists(f"{ROOT}/{f}")]
+    if miss_files:
+        print("  THIEU FILE:", ", ".join(miss_files))
+        ok = False
+    stale = [f for f in ("Unit_Economics_Home_Workout.html",)
+             if os.path.exists(f"{ROOT}/{f}")]
+    if stale:
+        print("  FILE CU CON SOT (xoa di):", ", ".join(stale))
+        ok = False
     n_src = len(re.findall(r'class="[^"]*\bsrc\b', doc))
     n_self = len(re.findall(r'class="[^"]*\bself\b', doc))
     n_calc = len(re.findall(r'class="[^"]*\bcalc\b', doc))
@@ -1698,15 +1452,32 @@ def check(doc, m, usage):
     if no_calc or not n_calc or miss_use:
         print("  LOI popover: o so thieu data-calc hoac o dung thieu id")
         ok = False
-    if ".sheet{display:none}" not in doc or ".sheet.on{display:block}" not in doc:
+    if ".sheet{display:none}" not in re.sub(r"\s+", "", css) or \
+       ".sheet.on{display:block}" not in re.sub(r"\s+", "", css):
         print("  THIEU CSS an sheet (.sheet{display:none})")
         ok = False
+    print(f"  file={len(need) - len(miss_files)}/{len(need)} css={len(css)}B js={len(js)}B")
+    shell = open(f"{ROOT}/index.html", encoding="utf-8").read() if not miss_files else ""
+    ch = open(f"{ROOT}/channel-plan/index.html", encoding="utf-8").read() if not miss_files else ""
+    checks = [("trang bai tro assets", 'href="../assets/app.css"' in doc and 'src="../assets/app.js"' in doc),
+              ("trang tong tro assets", 'href="assets/app.css"' in shell),
+              ("trang tong nap bai", '<iframe src="unit-economics/index.html"' in shell),
+              ("dropdown chi bai dang mo",
+               'value="index.html" selected' in shell and
+               'value="../channel-plan/index.html" selected' in ch)]
+    for name, good in checks:
+        if not good:
+            print(f"  LOI: {name}")
+            ok = False
     print("  KET QUA:", "DAT" if ok else "LOI")
     return ok
 
 
 if __name__ == "__main__":
     doc, m, usage = build()
-    print(f"  ghi {OUT} ({len(doc) / 1024:.0f} KB)")
+    for rel in ("index.html", "channel-plan/index.html",
+                "assets/app.css", "assets/app.js"):
+        p = f"{ROOT}/{rel}"
+        print(f"  ghi {rel} ({os.path.getsize(p)} B)")
     if "--check" in sys.argv and not check(doc, m, usage):
         sys.exit(1)

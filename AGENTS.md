@@ -38,7 +38,9 @@
 | `Unit_Economics_Home_Workout_bt2.xlsx` | Bài Cấp 2, nguồn khoá (md5 `47b1aad1…`) | ✅ 14 sheet · 0 lỗi · 40/40 khớp |
 | `Channel_Plan_Home_Workout.xlsx` | Bài Cấp 3 | ✅ 9 sheet · 65/65 dòng công thức · 0 lỗi |
 | `Channel_Plan_Home_Workout.docx` | Bản đọc Cấp 3 (sinh từ xlsx) | ✅ 9 câu · 38 bước · 159 bảng |
-| `Unit_Economics_Home_Workout.html` | Bản đọc Cấp 2 (sinh bằng `build_html.py`) | ✅ 12 tab · 556 hộp phép tính · 75 số bấm được · 415.685 bytes · md5 `25f698e3…` |
+| `index.html` | Trang tổng: header chung (`HOME WORKOUT` + dropdown) + `<iframe>` nạp bài Cấp 2 | ✅ 713 bytes · md5 `90a0dea4…` |
+| `unit-economics/index.html` | Nội dung Cấp 2 (sinh bằng `build_html.py`), dùng chung `assets/app.css` + `assets/app.js` | ✅ 12 tab · 556 hộp phép tính · 75 số bấm được · 398.724 bytes · md5 `a584b603…` |
+| `channel-plan/index.html` | Khung trang Cấp 3 (trống nội dung, chờ bài sau) | ✅ 635 bytes · chỉ header tổng + dropdown chọn bài |
 
 Muốn đổi số: sửa `D_Gia_Dinh` trong `.xlsx` rồi sinh lại — **không** sửa tay `.html`.
 Số chốt + quyết định chi tiết: `docs/03-du-an-01-unit-economics.md`.
