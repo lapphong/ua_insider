@@ -36,7 +36,7 @@ function say(m) {
 }
 /* to vang giu nguyen cho tới khi bam ra ngoai */
 function unmark() {
-  document.querySelectorAll('.src.on').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('td.on,.src.on').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.use-on,.hl').forEach(x => x.classList.remove('use-on', 'hl'));
 }
 
@@ -73,9 +73,10 @@ function markUses(td) {
 function calcShow(td) {
   calc.textContent = '';
   const h = document.createElement('div'); h.className = 'ch';
-  const b = document.createElement('b'); b.textContent = td.dataset.hd || 'Số';
+  const b = document.createElement('b'); b.textContent = td.dataset.hd || td.dataset.lab || 'Số';
   h.append(b);
-  if (td.dataset.lab) h.append(document.createTextNode(' · ' + td.dataset.lab));
+  /* không có tên chỉ số thì lấy nhãn làm tiêu đề, khỏi in lặp "Số · nhãn" */
+  if (td.dataset.lab && td.dataset.hd) h.append(document.createTextNode(' · ' + td.dataset.lab));
   calc.append(h);
   const e = document.createElement('div'); e.className = 'cx'; e.textContent = td.dataset.calc;
   /* o chi chep lai 1 con so (khong co phep tinh) thi chi hien ket qua 1 lan */
@@ -83,6 +84,28 @@ function calcShow(td) {
   if (td.dataset.calc && norm(td.dataset.calc) !== norm(td.dataset.res)) calc.append(e);
   if (td.dataset.res) {
     const d = document.createElement('div'); d.className = 'cd'; d.textContent = '= ' + td.dataset.res; calc.append(d);
+  } else if (!td.dataset.calc) {
+    /* công thức không in được (SUMIFS/COUNTIF…): vẫn hiện hộp. Nếu các ô nó lấy số
+       cộng lại đúng bằng kết quả thì in phép cộng, vd 2.3!C21 = 7.920.000 + 1.980.000 + 990.000 */
+    const here = document.querySelector('.sheet.on').id.slice(2);
+    const num = t => {
+      const s = (t || '').replace(/[$\s\u00a0%]/g, '');
+      if (!/^-?\d[\d.,]*$/.test(s)) return null;
+      return parseFloat(s.replace(/\./g, '').replace(',', '.'));
+    };
+    const parts = (td.dataset.uses || '').split(',').filter(Boolean)
+      .filter(k => k.slice(0, k.lastIndexOf(':')).toUpperCase() === here.toUpperCase())
+      .map(k => document.getElementById('c-' + here + '-' + k.slice(k.lastIndexOf(':') + 1)))
+      .filter(el => el && num(el.textContent) !== null);
+    const tot = num(td.textContent);
+    const sum = parts.reduce((a, el) => a + num(el.textContent), 0);
+    if (parts.length > 1 && tot !== null && Math.abs(sum - tot) <= Math.max(0.011, Math.abs(tot) * 5e-5)) {
+      const x = document.createElement('div'); x.className = 'cx';
+      x.textContent = parts.map(el => el.textContent.trim()).join(' + ');
+      calc.append(x);
+    }
+    const d = document.createElement('div'); d.className = 'cd';
+    d.textContent = '= ' + td.textContent.trim(); calc.append(d);
   }
   const { chips, same } = markUses(td);
   if (same) {
@@ -119,30 +142,60 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('#calc')) return;      /* bam trong hop thi khong tat */
   const cd = e.target.closest('td.calc'), s = e.target.closest('.src'), nu = e.target.closest('.num');
+  /* moi o so deu co id="c-<sheet>-<cell>" — kể cả số gõ tay (trước đây bấm vào không ăn gì) */
+  const cell = cd || s || e.target.closest('.sheet td[id^="c-"]');
   const tg = e.target.closest('td[data-uses]');
-  if (!cd && !s && !nu && !tg) { unmark(); calcHide(); dnote.innerHTML = HINT; }
+  if (!cell && !nu) { unmark(); calcHide(); dnote.innerHTML = HINT; }
   else {
     unmark();
-    /* o co so cung tab -> to vang so do (doc ra ket qua ngay tren bang);
-       chi to cot phai khi khong co o nao cung tab (so phai lay tu bang gia dinh) */
     const here = document.querySelector('.sheet.on').id.slice(2).toUpperCase();
     const same = !!(tg && (tg.dataset.uses || '').split(',')
       .some(k => k.slice(0, k.lastIndexOf(':')).toUpperCase() === here));
-    if (s && !same && !s.dataset.nop) {
-      s.classList.add('on');
+    /* Cột phải: tô dòng đang hiện ĐÚNG con số này — sánh từng chuỗi số
+       (giữ "%" và số thập phân, bỏ "$") với số hạng trong phép tính đang hiện
+       hoặc với kết quả. vd 2.3 ARPDAU "(8,0 × $0,52 + 2,0 × $7,43 + 1,0 × $10,70) ÷ 1000"
+       -> tô Banner 8,0 · Interstitial 2,0 · Rewarded 1,0.
+       Có data-src: chỉ xét các dòng đã truy nguồn (không khớp số nào thì tô hết,
+       trừ ô data-nop / ô đã có nguồn cùng tab). Không có data-src (số gõ tay):
+       xét cả cột phải. */
+    const nrm = t => (t || '').replace(/[$\s\u00a0]/g, '');
+    const pc = s || cd || cell;   /* ô gõ tay không có class .src nhưng vẫn phải đối chiếu cột phải */
+    if (pc) pc.classList.add('on');            /* ô đang bấm: luôn vàng */
+    let list = [];
+    if (pc) {
+      const toks = ((pc.dataset.calc || '').match(/-?\$?\d[\d.,]*%?/g) || []).concat([pc.textContent]);
+      const want = new Set(toks.map(nrm));
+      /* bảng mini cột phải trộn TIỀN ($26.000), SỐ LƯỢNG (13.000) và HỆ SỐ (1,20):
+         riêng bảng mini phải giữ dấu $ trong khoá, không thì "CAC thật $1,20" (2.2)
+         tô nhầm dòng "Quality index 1,20". Dòng .pr/.fact giữ luật cũ. */
+      const mny = t => ((t || '').indexOf('$') >= 0 ? '$' : '') + nrm(t);
+      const mwant = new Set(toks.map(mny));
+      const hit = el => {
+        /* dòng .pr/.fact có .v; dòng bảng mini thì số nằm trong td.n (quality index, giá gói…) */
+        if (el.tagName === 'TR')
+          return [...el.querySelectorAll('td.n')].some(td => mwant.has(mny(td.textContent))) ? [el] : [];
+        return [...el.querySelectorAll('.v,.fv')].some(v => want.has(nrm(v.textContent))) ? [el] : [];
+      };
+      const nodes = pc.dataset.src
+        ? pc.dataset.src.split(',').filter(Boolean).map(k => {
+            const p = k.split(':');
+            return document.getElementById('p-' + p[0] + '-' + p[1]);
+          }).filter(Boolean)
+        : [...document.querySelectorAll('#data .pr,#data .fact,#data table.mini tr[id]')];
+      list = nodes.flatMap(hit);
+      if (!list.length && pc.dataset.src && !pc.dataset.nop && !same) list = nodes;
+    }
+    if (list.length) {
       let first = null, n = 0;
-      s.dataset.src.split(',').filter(Boolean).forEach(k => {
-        const p = k.split(':'), el = document.getElementById('p-' + p[0] + '-' + p[1]);
-        if (!el) return;
-        el.classList.add('hl'); n++; if (!first) first = el;      /* giu vang, khong fad */
+      list.forEach(el => {
+        el.classList.add('hl'); n++; if (!first) first = el;        /* giu vang, khong fad */
       });
-      dnote.innerHTML = n ? ('← <b>' + s.dataset.lab + '</b> · ' + n + ' ô nguồn bên dưới') : HINT;
+      dnote.innerHTML = n ? ('← <b>' + (pc.dataset.lab || 'số nguồn') + '</b> · ' + n + ' ô nguồn bên dưới') : HINT;
       if (first) first.scrollIntoView({ block: 'center' });
       if (innerWidth <= 1100) document.body.classList.add('datopen');
-    } else if (!cd && !nu) {    /* co so cung tab: to vang cac o do */
-      markUses(tg);
     }
-    if (cd || nu) calcShow(cd || nu); else calcHide();
+    if (tg) markUses(tg);       /* số dùng trong cùng tab: tô luôn, kể cả khi đã tô cột phải */
+    if (cd || nu || tg) calcShow(cd || nu || tg); else calcHide();
   }
   const g = e.target.closest('[data-go]');
   if (g) {

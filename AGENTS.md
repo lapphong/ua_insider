@@ -51,10 +51,10 @@ Số chốt + quyết định chi tiết: `docs/03-du-an-01-unit-economics.md`.
 
 ```bash
 cd /Users/buzzlp./Downloads/ua
-make ok     # build + kiểm số liệu + ghi docs/manifest.txt + kiểm 7 mục layout
+make ok     # build + kiểm số liệu + ghi docs/manifest.txt + kiểm 9 mục layout
 ```
 
-Đạt khi in `KET QUA: DAT`, `thieu-id-dung=0`, `file=5/5`, `KIEM: 7/7 muc OK`. Chạy lẻ: `python3 scripts/browser_check.py`.
+Đạt khi in `KET QUA: DAT`, `thieu-id-dung=0`, `file=5/5`, `KIEM: 9/9 muc OK`. Chạy lẻ: `python3 scripts/browser_check.py`.
 
 Build lại file Cấp 3 (script q1–q9 + `fix.py` + `makedoc.py`) và cách kiểm `.xlsx`: `docs/03-du-an-01-unit-economics.md` §7.
 

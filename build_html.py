@@ -1027,7 +1027,7 @@ def render_sheet(m, name, usage):
                         bits += ['data-src="%s"' % ",".join("%s:%d" % (s, rr) for s, rr in data[:40])]
                         direct = {(s, rr) for s, _c, rr in refs_of(raw, name)
                                   if s in DATA_SHEETS} if isinstance(raw, str) else set()
-                        if not direct:      # so phai tinh qua tab khac -> to cot phai cung khong hieu
+                        if not direct:      # so phai tinh qua tab khac -> to het cot phai la sai
                             bits.append('data-nop="1"')
                         for s, rr in data:
                             usage.setdefault((s, rr), {})[f"c-{name}-{addr}"] = (
@@ -1038,6 +1038,8 @@ def render_sheet(m, name, usage):
                                  'title="Ô nhập tay trong chính bảng này"']
                     if ex or data or selfref or uses:
                         bits += ['data-lab="%s"' % esc(lab), 'tabindex="0"']
+                        if not ex:      # công thức không in được: vẫn có tên chỉ số cho hộp
+                            bits.append('data-hd="%s"' % esc(hd.get(x["c0"], "")))
                     attr = (" " + " ".join(bits)) if bits else ""
                 elif isinstance(x["cell"].value if x["cell"] is not None else None, str) \
                         and x["cell"].value.startswith("="):

@@ -105,7 +105,57 @@ function run() {
     ok = (on && hl > 0 && off) ? 0 : 1;
     why.push('hien=' + on + ' to=' + hl + ' tat=' + off);
   }
+  /* ô công thức không in được phép tính (SUMIFS) vẫn phải có hộp, và phải in phép cộng:
+     2.3!B21 = 7.920.000 + 1.980.000 + 990.000 = 10.890.000 */
+  [...tabs].find(x => x.dataset.t === '2.3_eCPM').click();
+  const nc = d.getElementById('c-2.3_eCPM-B21');
+  if (!nc) { ok++; why.push('thieu B21'); }
+  else {
+    nc.click();
+    const box = d.getElementById('calc'), tx = box.textContent;
+    if (!box.classList.contains('on')) { ok++; why.push('B21 khong hop'); }
+    else if (tx.indexOf('7.920.000 + 1.980.000 + 990.000') < 0 || tx.indexOf('10.890.000') < 0) {
+      ok++; why.push('B21 thieu phep cong');
+    }
+    d.body.click();
+  }
   push('popover', badCalc + ok, 'lo-ham=' + badCalc + ' ' + why.join(' '));
+
+  /* 8. ô dùng số ở cột phải: bấm phải tô đúng dòng đang hiện con số đó
+     (2.2 F10 = B81 → "Tổng chi phí ngoài media"; 2.3 B42 = 8,0/2,0/1,0 → Banner/Interstitial/Rewarded) */
+  let pOk = 0, pWhy = [];
+  [['2.2_CPI_CAC', 'c-2.2_CPI_CAC-F10', ['D_GIA_DINH-81']],
+   ['2.3_eCPM', 'c-2.3_eCPM-B42',
+    ['D_GIA_DINH-32', 'D_GIA_DINH-33', 'D_GIA_DINH-34']],
+   ['2.5_LTV', 'c-2.5_LTV-B40', ['D_GIA_DINH-69']],
+   ['2.2_CPI_CAC', 'c-2.2_CPI_CAC-H9', []]].forEach(([sh, id, want]) => {   /* H9: tiền $1,20 KHÔNG được tô index 1,20 */
+    const t = [...tabs].find(x => x.dataset.t === sh);
+    if (t) t.click();
+    const c = d.getElementById(id);
+    if (!c) { pOk++; pWhy.push('thieu-o ' + id); return; }
+    c.click();
+    const got = [...d.querySelectorAll('#data .hl')].map(e => e.id);   /* gồm cả dòng bảng mini (tr) */
+    const miss = want.filter(w => got.indexOf('p-' + w) < 0);
+    if (miss.length) { pOk++; pWhy.push(id + ' thieu ' + miss.join(',')); }
+    if (!want.length && got.length) { pOk++; pWhy.push(id + ' to nham ' + got.length + ' dong'); }
+    d.body.click();
+  });
+  push('to dung dong cot phai', pOk, pWhy.slice(0, 2).join(' '));
+
+  /* 9. ô đang bấm phải vàng — kể cả ô số gõ tay (trước đây bấm vào không ăn gì) */
+  let cOk = 0, cWhy = [];
+  [['2.3_eCPM', 'c-2.3_eCPM-C7'],              /* Impressions: số gõ tay */
+   ['2.3_eCPM', 'c-2.3_eCPM-B42'],             /* ô tính toán */
+   ['2.5_LTV', 'c-2.5_LTV-D28']].forEach(([sh, id]) => {
+    const t = [...tabs].find(x => x.dataset.t === sh);
+    if (t) t.click();
+    const c = d.getElementById(id);
+    if (!c) { cOk++; cWhy.push('thieu-o ' + id); return; }
+    c.click();
+    if (!c.classList.contains('on')) { cOk++; cWhy.push(id + ' khong vang'); }
+    d.body.click();
+  });
+  push('o bam to vang', cOk, cWhy.slice(0, 2).join(' '));
   tabs[0].click();                                   /* tra ve tab dau */
   document.getElementById('out').textContent = JSON.stringify(res);
 }

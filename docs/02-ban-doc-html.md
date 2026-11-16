@@ -79,11 +79,15 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 | `IF(đk, a, b)` | Chọn đúng nhánh đã chạy: 1 nhánh chuỗi + 1 nhánh số → lấy nhánh số; cùng loại → tính `đk` bằng số thật (`AND/OR/so sánh`, `truth()`) rồi chọn. Không chắc → **không hiện hộp** |
 | Hàm khác (`SUMIFS`, `COUNTIF`, `LEN`, `SUBSTITUTE`…) | Không hiện hộp — thà im còn hơn in hàm lạ |
 | Ngoặc | **Giữ nguyên** ngoặc của công thức: `(a + b + c) ÷ 1000` |
+| Ô bấm vào phải vàng | **Mọi** ô số (mọi `td[id^="c-"]`, kể cả số gõ tay `Impressions`, `Doanh thu`, và ô Tổng nền xám) đều bấm được và **tự tô vàng** class `on` — CSS `td.on{background:#ffe8a3` **`!important`** vì nền `.tot`/`.key` đè mất. Bấm ô không có công thức thì chỉ vàng ô đó (không có hộp, không có gì để truy nguồn) |
 | Số cùng tab | Ô nguồn (trong bài, không phải cột phải) được **tô vàng** `.use-on`; vàng giữ tới khi bấm ra ngoài. Ghi chú trong hộp: `ô vàng = số lấy vào phép tính này` |
 | Ô chỉ chép lại 1 con số | `describe()` ra đúng bằng kết quả (vd `=E23` → `1,01`) → **chỉ hiện `= 1,01` một lần**, không in thêm dòng trùng |
-| Ô công thức không đọc được | Không có hộp, nhưng **vẫn phải tô được ô nó lấy số**: gắn `data-uses` + class `.uses`; khác tab thì bỏ (không có hộp để hiện nút) |
-| Ưu tiên ô cùng tab | Bấm ô mà công thức có **ô nguồn cùng tab** → **luôn tô vàng các ô đó**, **không** tô cột phải, kể cả khi công thức cũng trỏ thẳng bảng giả định. Chỉ khi **không** có nguồn cùng tab mới tô cột phải. Cài đặt: JS tính `same` từ `data-uses`, `if(s&&!same&&!s.dataset.nop)` mới tô panel |
-| Khi nào tô cột phải | **Chỉ khi** công thức lấy số **trực tiếp** từ `D_Gia_Dinh` / `C_Du_Lieu_That`. Số phải tính vòng qua tab khác thì **không** tô cột phải. Cài đặt: ô có `data-src` nhưng không có nguồn giả định trực tiếp → `data-nop="1"`; JS chỉ tô panel khi `.src` không có `data-nop` |
+| Ô công thức không đọc được | Vẫn **có hộp**: tiêu đề = tên chỉ số (`data-hd`) + nhãn nhóm (`data-lab`), rồi **phép cộng các ô nó lấy số** (lấy `textContent` từ `data-uses` cùng tab, chỉ ô số) khi cộng lại đúng bằng kết quả, cuối cùng dòng `= <kết quả ô>`; ghi chú `ô vàng = số lấy vào phép tính này`. vd `2.3!B21` → `7.920.000 + 1.980.000 + 990.000` → `= 10.890.000`. Cộng không khớp (SUMIFS có điều kiện lọc, hoặc công thức nhân/chia) thì **chỉ in** `= kết quả`, không bịa phép cộng |
+| Tô cột phải — dòng nào | Bấm ô có số: tô **các dòng đang hiện ĐÚNG con số đó**. Sánh **chuỗi số** (bỏ `$`, giữ `%` và số thập phân) của từng số hạng trong `data-calc` + kết quả với `.v` của từng dòng. vd 2.3 ARPDAU `(8,0 × $0,52 + 2,0 × $7,43 + 1,0 × $10,70) ÷ 1000` → tô Banner `8,0` · Interstitial `2,0` · Rewarded `1,0`; 2.2 `$11.000` → tô "Tổng chi phí ngoài media". **Không** so theo trị số đã làm tròn (`1` ≠ `1,0`, `2,0%` ≠ `2,0`) — so trị số thì tô nhầm 20+ ô |
+| Ô không có `data-src` (số gõ tay) | Tab 2.6/2.8 nhập tay `38,0%`, `20,0%`… nên không có đường truy nguồn: đối chiếu **cả** cột phải, không cần `data-src`. Ô gõ tay không có class `.src`, nên JS phải lấy `pc = s \|\| cd` (chỉ dùng `.src` là mất trắng 23 ô) |
+| Số nằm trong **bảng mini** cột phải | Quality index, giá gói, chi phí media… không phải dòng `.pr` mà là `<tr id="p-…">` + `<td class="n">`. So `.v` là trượt hết; phải so `td.n` rồi tô **cả dòng** (`tr.hl`). vd 2.5 §3/§4 `× 1,20` → tô dòng Meta Ads. **Riêng bảng mini giữ dấu `$` trong khoá so** (tiền `$1,20` ≠ hệ số `1,20` ≠ số chu kỳ `0,10`): không thì `2.2!H9` CAC thật `$1,00 + $0,20` tô nhầm dòng Quality index `1,20`. Dòng `.pr`/`.fact` vẫn so bỏ `$` như cũ |
+| Không dòng nào trùng số | Tô hết các dòng trong `data-src` — **trừ** ô `data-nop="1"` (số phải tính vòng qua tab khác: tô hết là loang, có ô 17 dòng) và ô đã có nguồn cùng tab |
+| Ô dùng cả số trong tab và số cột phải | Tô **cả hai**: ô cùng tab (`.use-on`) **và** dòng cột phải (`.hl`). Cài đặt: `markUses(tg)` gọi vô điều kiện, phần tô panel tính độc lập (đừng quay lại `if(s&&!same&&!nop)`) |
 | Cột phải | Dòng nguồn tô vàng `.hl` **giữ nguyên** (không fade theo thời gian), chỉ xoá khi bấm ra ngoài. Bấm `↗` ở cột phải cũng tô `.hl` dòng đích và cuộn tới |
 | Note tiêu đề cột | Cột có ô lấy số từ tab khác → tooltip `ⓘ` thêm `Có dùng số của tab 2.5 · 2.2.` — **hết**, không thêm câu "bấm vào số để xem phép tính" |
 | Ô định dạng sai trong xlsx | `2.8_Phan_Tang!B20` đặt nhầm `0.0%` nên Excel hiện `29.958.460,1%`; HTML hiện lại `$299.585` bằng `FORMAT_FIX`. **Nên sửa định dạng ô đó trong xlsx nếu mở lại file** |
@@ -114,7 +118,7 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 14. **Câu "Trả lời ngắn" phải bấm được từng số**: cắt theo `&` cấp ngoài cùng (`top_parts`), đọc số bằng token (`NUM_HEAD`), không dùng `text.find(literal)` (literal `"."` cắt ngang `72.2%`), và literal phải khớp **đúng vị trí** — lệch thì in thường cả ô.
 15. **Số trong nhận định** dùng `ANS_LINK` (khớp **cụm ngữ cảnh**), và mọi nút `↗ tab` lấy `dataset.t` thật của tab. Muốn thêm số bấm được → thêm 1 dòng vào `ANS_LINK` (ngữ cảnh phải **đúng nguyên văn** câu trong ô chữ) rồi chạy lại `--check`.
 
-## 7. Nghiệm thu — 7 mục `--check` không bắt được (đã có script)
+## 7. Nghiệm thu — 9 mục `--check` không bắt được (đã có script)
 
 `python3 scripts/browser_check.py` (hoặc `make ok`) chạy 1 lần Chrome headless, in 1 dòng/mục, sai mục nào exit 1:
 
@@ -126,7 +130,9 @@ Bấm một ô **có phép tính** → hiện hộp nhỏ ngay dưới ô, 3 dò
 | Header lệch canh lề với body | so `textAlign` của `th` với `td` cùng cột, chỉ khi `row.children.length === ths.length` |
 | Panel phải tràn | `#data` scrollWidth vs clientWidth, và `scrollWidth` từng `.pr`/`.fact` |
 | Nút `↗` trỏ sai / thiếu | duyệt **mọi** `#data .use`: `getElementById(data-go)` phải tồn tại, đúng `data-sheet`, và `data-src` của ô đích chứa `D_GIA_DINH:<dòng panel>` |
-| Popover | `data-calc` không chứa tên hàm; bấm 1 ô → hộp hiện + ô nguồn vàng; bấm ra ngoài → tắt hết |
+| Popover | `data-calc` không chứa tên hàm; bấm 1 ô → hộp hiện + ô nguồn vàng; bấm ra ngoài → tắt hết. Bấm `2.3!B21` (SUMIFS, không có `data-calc`) → hộp phải in `7.920.000 + 1.980.000 + 990.000` và `= 10.890.000` |
+| Tô đúng dòng cột phải | Bấm `2.2!F10` → dòng "Tổng chi phí ngoài media" vàng; bấm `2.3!B42` → đúng 3 dòng Banner/Interstitial/Rewarded vàng (so chuỗi số, xem bảng §5) |
+| Ô bấm phải vàng | Bấm `2.3!C7` (Impressions, **số gõ tay**), `2.3!B42` (ô tính toán), `2.5!D28` → ô đang bấm phải có class `on` = vàng |
 
 Đo tay chỉ khi cần **nhìn** (màu, khoảng cách): Chrome headless `--window-size=1440,300 --screenshot=…`. Cần số chính xác thì dùng probe in text, đừng đọc ảnh.
 
