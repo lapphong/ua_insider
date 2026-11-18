@@ -1361,6 +1361,7 @@ PAGE = """<!doctype html>
 <body>
 <div class="pagebar">
   <nav class="tabs" id="tabs">%(tabs)s</nav>
+  <a class="dl" href="../Unit_Economics_Home_Workout_bt2.xlsx" download>⤓ Tải .xlsx</a>
   <button class="dt" id="dtoggle">Dữ liệu ⇄</button>
 </div>
 <main class="split">
@@ -1470,7 +1471,10 @@ def check(doc, m, usage):
               ("trang tong nap bai", '<iframe src="unit-economics/index.html"' in shell),
               ("dropdown chi bai dang mo",
                'value="index.html" selected' in shell and
-               'value="../channel-plan/index.html" selected' in ch)]
+               'value="../channel-plan/index.html" selected' in ch),
+              ("nut tai .xlsx",
+               'href="../Unit_Economics_Home_Workout_bt2.xlsx" download' in doc and
+               os.path.exists(f"{ROOT}/Unit_Economics_Home_Workout_bt2.xlsx"))]
     for name, good in checks:
         if not good:
             print(f"  LOI: {name}")

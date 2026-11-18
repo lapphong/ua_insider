@@ -12,6 +12,7 @@
 
 - **`index.html` = trang tổng**: chỉ có header chung (`HOME WORKOUT` + dropdown chọn bài) và 1 `<iframe>` nạp trang bài. Mặc định nạp `unit-economics/index.html`.
 - **Mỗi bài = 1 thư mục có `index.html` riêng** (`unit-economics/`, `channel-plan/`), bên trong chứa thanh tab + nội dung. CSS/JS nằm ở `assets/` dùng chung. **Không cần internet**, double-click `index.html` là mở.
+- **Nút tải file bài làm** nằm cuối thanh tab (góc phải `.pagebar`): `<a class="dl" href="../<file>.xlsx" download>`. Trỏ **tương đối** tới file `.xlsx` ở gốc repo để chạy được cả `file://` lẫn Pages; `build_html.py` kiểm cả `href` lẫn file tồn tại (`nut tai .xlsx`).
 - Vì trang bài nằm trong iframe, trang tổng **không chép nội dung** bài → sửa 1 chỗ, không có 2 bản lệch số. Đây là lý do phải dùng iframe: file tĩnh không tự hiển thị nội dung file khác (`fetch` chết trên `file://`).
 - Mọi đường dẫn là **tương đối và trỏ thẳng file** (`assets/app.css`, `../index.html`, `unit-economics/index.html`) để chạy được cả `file://` lẫn GitHub Pages. **Không** trỏ vào thư mục (`../channel-plan/`) — mở bằng `file://` sẽ ra danh sách thư mục, không tự nạp `index.html`. **Không** dùng `fetch()` để nạp nội dung — `fetch` chết trên `file://`.
 - Số tính sẵn lúc build bằng thư viện `formulas` rồi nhúng vào HTML. **Không** nhúng engine công thức vào trình duyệt.
