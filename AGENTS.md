@@ -41,6 +41,7 @@
 | `index.html` | Trang tổng: header chung (`HOME WORKOUT` + dropdown) + `<iframe>` nạp bài Cấp 2 | ✅ chưa tới 1 KB |
 | `unit-economics/index.html` | Nội dung Cấp 2 (sinh bằng `build_html.py`), dùng chung `assets/app.css` + `assets/app.js` | ✅ 12 tab · 556 hộp phép tính · 75 số bấm được |
 | `channel-plan/index.html` | Khung trang Cấp 3 (trống nội dung, chờ bài sau) | ✅ chỉ header tổng + dropdown chọn bài |
+| `README.md` / `README.vi.md` | Giới thiệu repo: bản Anh (gốc) + bản Việt, luật "chỉ để học" | ✅ bài mới thì **thêm cùng 1 dòng vào bảng `Lessons` của cả 2 file** (`make ok` kiểm 2 bảng khớp) |
 
 Số đo file (md5 + bytes) **không chép tay**: `make ok` ghi ra `docs/manifest.txt`.
 

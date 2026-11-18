@@ -1464,6 +1464,21 @@ def check(doc, m, usage):
         print("  THIEU CSS an sheet (.sheet{display:none})")
         ok = False
     print(f"  file={len(need) - len(miss_files)}/{len(need)} css={len(css)}B js={len(js)}B")
+    # README.md (Anh) + README.vi.md phai co bang bai giong het nhau
+    bac = []
+    for f in ("README.md", "README.vi.md"):
+        p = f"{ROOT}/{f}"
+        if not os.path.exists(p):
+            print(f"  THIEU FILE: {f}")
+            ok = False
+            bac.append(None)
+        else:
+            bac.append([l.rstrip() for l in open(p, encoding="utf-8").read().splitlines()
+                        if re.match(r"\|\s*\d+\s*\|", l)])
+    print(f"  readme-bai={len(bac[0] or [])}/{len(bac[1] or [])}")
+    if bac[0] != bac[1]:
+        print("  LOI README: bang bai Viet/Anh lech nhau (sua ca 2 file)")
+        ok = False
     shell = open(f"{ROOT}/index.html", encoding="utf-8").read() if not miss_files else ""
     ch = open(f"{ROOT}/channel-plan/index.html", encoding="utf-8").read() if not miss_files else ""
     checks = [("trang bai tro assets", 'href="../assets/app.css"' in doc and 'src="../assets/app.js"' in doc),
