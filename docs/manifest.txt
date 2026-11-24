@@ -1,5 +1,5 @@
 90a0dea4dc5c50d23d11dd3428a1995c       713  index.html
-c2048d4cf110e7cbd479612d9cc26bdb    400755  unit-economics/index.html
+1a5fffc052baf743883454f84f7d1fac    402778  unit-economics/index.html
 e2bff9d2baf6918c5eb0f07b1f4f353a       635  channel-plan/index.html
-00d6d8425cc10357bf34e3ec424dd020     12077  assets/app.css
+8a1c159f6d59d97e363f566c86e3947d     12198  assets/app.css
 ee4814653bd94153af4c9038dcf3c6ee     12063  assets/app.js

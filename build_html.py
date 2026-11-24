@@ -1128,6 +1128,17 @@ LV = {"REAL": ("🟩", "số thật, lấy từ Google Play"),
       "FAKE": ("🟥", "số bịa để bài chạy được — đừng dùng ra quyết định thật")}
 SKIP_COLS = ("Loại", "Ghi chú", "Vì sao", "Ngày lấy")
 SKIP_INFO = ("Tên app", "Package ID", "Khoảng giá IAP")  # ⓘ khong can thiet
+# Nguon thuong lay tung nhom so (nut ⓘ goc phai tieu de A/B/C/D... o cot phai)
+NGUON = {
+    "A": "Google Play Console (Service fee) + App Store Connect (Agreements, Tax and Banking) cho phí sàn; giá gói bán ở trang store; thông tin app ở listing Play/App Store.",
+    "B": "Firebase Analytics (Retention) · AppsFlyer / Adjust (cohort retention) · Amplitude, Mixpanel. Mức chuẩn để so: AppsFlyer Performance Index, Adjust benchmarks, Sensor Tower.",
+    "C": "AdMob · AppLovin MAX · Unity LevelPlay — impressions, eCPM, fill rate; doanh thu IAA thật ở AdMob/MAX; eCPM chuẩn để so: business-of-apps, Sensor Tower.",
+    "D": "Play Console (Financial reports) · App Store Connect (Sales) · RevenueCat / Adapty (purchase) · event mua ghi bằng Firebase hoặc Amplitude.",
+    "E": "RevenueCat / Adapty (MRR, churn, trial → paid) · App Store Connect (Subscriptions) · Play Console (Financial reports).",
+    "F": "Xuất cohort thật theo D0…D365 từ Firebase hoặc MMP (AppsFlyer/Adjust) · RevenueCat charts; chưa đủ 12 tháng thì so payback benchmark của Adjust/AppsFlyer.",
+    "G": "MMP: AppsFlyer / Adjust / Singular / Kochava (installs + cost từng kênh) · dashboard Meta Ads Manager, Google Ads, TikTok Ads · iOS thiếu số thì đọc SKAdNetwork + GA4.",
+    "H": "Số nội bộ: bảng lương, hoá đơn SaaS/CDN, kế toán (Xero/QuickBooks) — không có nguồn công khai, benchmark chỉ để đối chiếu.",
+}
 # nguoi hoc chi xin them ↗ cho D7/D30 o bang retention, khong phai moi dong
 NO_ARROW = {("D_GIA_DINH", 20), ("D_GIA_DINH", 22), ("D_GIA_DINH", 24)}  # D3 · D14 · D60
 
@@ -1144,6 +1155,15 @@ def info(tip):
     if not tip or (len(tip) < 20 and not any(c.isdigit() for c in tip)):
         return ""
     return f'<span class="info" tabindex="0" data-tip="{esc(tip)}">i</span>' 
+
+
+def src_info(title):
+    """Nut ⓘ goc phai tieu de nhom (A/B/C...): nguon thuong lay cua nhom so do."""
+    txt = NGUON.get(title.strip()[:1].upper())
+    if not txt:
+        return ""
+    return (f'<span class="info nguon" tabindex="0" '
+            f'data-tip="Thường dữ liệu lấy ở: {esc(txt)}">i</span>')
 
 
 def use_btn(usage, upper, r, nm="", vm=""):
@@ -1280,7 +1300,7 @@ def build_panel(m, usage):
                             "loai": chip(loai), "note": " · ".join(notes)})
 
     for s in secs:
-        out.append(f'<div class="ps"><h4>{esc(s["title"])}{info(s["formula"])}</h4>')
+        out.append(f'<div class="ps"><h4>{esc(s["title"])}{info(s["formula"])}{src_info(s["title"])}</h4>')
         if s["table"]:
             out.append(render_wide(m, ws, up, s, usage))
         for row in s["rows"]:
@@ -1446,7 +1466,8 @@ def check(doc, m, usage):
             sh, _, ad = k.rpartition(":")
             if (sh.upper(), ad) not in have:
                 miss_use += 1
-    bad = sum(doc.count(x) for x in ("#REF!", "#VALUE!", "#DIV/0!", "None<", "nan"))
+    bad = sum(doc.count(x) for x in ("#REF!", "#VALUE!", "#DIV/0!", "None<")) + \
+        len(re.findall(r"\bnan\b", doc))
     print(f"  tab={doc.count('class=\"tab\"')} sheet={doc.count('class=\"sheet\"')} "
           f"o-bam-duoc={n_src} o-nhap-tay={n_self}")
     print(f"  tooltip={doc.count('class=\"info\"')} nut-nguoc={doc.count('class=\"use\"')} "
@@ -1464,6 +1485,12 @@ def check(doc, m, usage):
         print("  THIEU CSS an sheet (.sheet{display:none})")
         ok = False
     print(f"  file={len(need) - len(miss_files)}/{len(need)} css={len(css)}B js={len(js)}B")
+    # moi nhom so o cot phai phai co nut ⓘ nguon du lieu
+    n_ps, n_src = doc.count('class="ps"'), doc.count('class="info nguon"')
+    print(f"  nguon-info={n_src}/{n_ps}")
+    if n_ps != n_src:
+        print("  LOI nguon: nhom so chua co nut ⓘ (them vao SRC)")
+        ok = False
     # README.md (Anh) + README.vi.md phai co bang bai giong het nhau
     bac = []
     for f in ("README.md", "README.vi.md"):
